@@ -3,10 +3,12 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Chapter 6 – Advanced UI &amp; Animation | Flutter Final</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎨</text></svg>">
-<link rel="stylesheet" href="assets/style.css"></head>
+<link rel="stylesheet" href="style.css"></head>
 <body>
-<header><div class="wrap"><p>สรุปสอบบรรยาย · Flutter Mobile</p><h1>Chapter 6 – Advanced UI and Animation</h1><p>UI Composition · Custom Widget · Theme (Light/Dark) · Implicit / Explicit Animation</p></div></header>
+<header class="top"><a href="index.html">← หน้าแรก</a><strong>บทที่ 6 — Advanced UI and Animation</strong></header>
 <main>
+<h1>Chapter 6 – Advanced UI and Animation</h1>
+<p style="color:var(--muted)">UI Composition · Custom Widget · Theme (Light/Dark) · Implicit / Explicit Animation</p>
 <nav class="toc"><a href="#comp">1. UI Composition</a><a href="#custom">2. Custom Widget</a><a href="#theme">3. Theme</a><a href="#darklight">4. Light/Dark</a><a href="#anim">5. Animation</a><a href="#implicit">6. Implicit</a><a href="#explicit">7. Explicit</a><a href="#lab">8. แบบฝึกหัด</a><a href="#quiz">9. ข้อสอบ</a></nav>
 
 <section id="comp"><h2>1. UI Composition</h2>
@@ -325,4 +327,23 @@ class _TrafficLightState extends State&lt;TrafficLight&gt; {
 </section>
 </main>
 <footer><a href="chapter5.html">← Chapter 5</a> · Chapter 6 · <a href="index.html">หน้าแรก</a></footer>
+<script>
+(function(){
+  var esc=function(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')};
+  var kw='class|extends|const|final|return|void|import|required|int|double|String|bool|super|static|true|false|null|this|var|late|new|async|await|if|else|try|catch|dynamic|factory|Future|get';
+  var re=new RegExp('(\\/\\/[^\\n]*|#[^\\n]*)|(\'(?:\\\\.|[^\'\\\\\\n])*\'|"(?:\\\\.|[^"\\\\\\n])*")|(@override)|\\b('+kw+')\\b|\\b(\\d+(?:\\.d+)?)\\b','g');
+  document.querySelectorAll('pre code').forEach(function(el){
+    var src=el.textContent,out='',last=0,m;
+    re.lastIndex=0;
+    while((m=re.exec(src))){
+      out+=esc(src.slice(last,m.index));
+      var cls=m[1]?'c':m[2]?'s':m[3]?'k':m[4]?'k':'n';
+      out+='<span class="'+cls+'">'+esc(m[0])+'</span>';
+      last=m.index+m[0].length;
+    }
+    out+=esc(src.slice(last));
+    el.innerHTML=out;
+  });
+})();
+</script>
 </body></html>
