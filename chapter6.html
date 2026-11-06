@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="th"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Chapter 6 – Advanced UI &amp; Animation | Flutter Final</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎨</text></svg>">
+<link rel="stylesheet" href="assets/style.css"></head>
+<body>
+<header><div class="wrap"><p>สรุปสอบบรรยาย · Flutter Mobile</p><h1>Chapter 6 – Advanced UI and Animation</h1><p>UI Composition · Custom Widget · Theme (Light/Dark) · Implicit / Explicit Animation</p></div></header>
+<main>
+<nav class="toc"><a href="#comp">1. UI Composition</a><a href="#custom">2. Custom Widget</a><a href="#theme">3. Theme</a><a href="#darklight">4. Light/Dark</a><a href="#anim">5. Animation</a><a href="#implicit">6. Implicit</a><a href="#explicit">7. Explicit</a><a href="#lab">8. แบบฝึกหัด</a><a href="#quiz">9. ข้อสอบ</a></nav>
+
+<section id="comp"><h2>1. UI Composition</h2>
+<p>แนวคิดสร้าง UI ใหญ่จาก Widget เล็ก ๆ หลายตัวมาประกอบกัน ตามหลัก <b>Everything is a Widget</b></p>
+<table><tr><th>ไม่ใช้ Composition</th><th>ใช้ Composition</th></tr>
+<tr><td>โค้ดยาว อ่านยาก</td><td>โค้ดอ่านง่าย</td></tr>
+<tr><td>แก้ไขยาก</td><td>โครงสร้างชัดเจน แก้ไขง่าย</td></tr>
+<tr><td>นำกลับมาใช้ซ้ำไม่ได้</td><td>นำกลับมาใช้ซ้ำได้</td></tr></table>
+<figure class="fig"><svg viewBox="0 0 640 210" role="img" aria-label="ProfilePage แยกเป็น ProfileHeader ProfileStats ActionButtons PostGrid">
+<g font-family="sans-serif" font-size="14" text-anchor="middle">
+<rect x="240" y="10" width="160" height="40" rx="8" fill="#ede9fe" stroke="#7c3aed"/><text x="320" y="36" fill="#4c1d95">ProfilePage</text>
+<g stroke="#64748b" stroke-width="1.5"><line x1="320" y1="50" x2="320" y2="70"/><line x1="85" y1="70" x2="555" y2="70"/><line x1="85" y1="70" x2="85" y2="100"/><line x1="235" y1="70" x2="235" y2="100"/><line x1="395" y1="70" x2="395" y2="100"/><line x1="555" y1="70" x2="555" y2="100"/></g>
+<rect x="10" y="100" width="150" height="40" rx="8" fill="#dbeafe" stroke="#2563eb"/><text x="85" y="125" fill="#1e3a8a">ProfileHeader</text>
+<rect x="165" y="100" width="140" height="40" rx="8" fill="#dbeafe" stroke="#2563eb"/><text x="235" y="125" fill="#1e3a8a">ProfileStats</text>
+<rect x="320" y="100" width="150" height="40" rx="8" fill="#dbeafe" stroke="#2563eb"/><text x="395" y="125" fill="#1e3a8a">ActionButtons</text>
+<rect x="490" y="100" width="130" height="40" rx="8" fill="#dbeafe" stroke="#2563eb"/><text x="555" y="125" fill="#1e3a8a">PostGrid</text>
+<text x="320" y="185" fill="#64748b" font-size="13">lib/screens/profile_page.dart  +  lib/widgets/*.dart</text></g></svg>
+<figcaption>โครงสร้างแนะนำ (วาดใหม่เพื่อสรุป)</figcaption></figure>
+<pre><code>lib/
+├ screens/
+│  └ profile_page.dart
+└ widgets/
+   ├ profile_header.dart
+   ├ profile_stats.dart
+   └ action_buttons.dart</code></pre></section>
+
+<section id="custom"><h2>2. Custom Widget</h2>
+<h3>แบบดั้งเดิม (โค้ดซ้ำ)</h3>
+<pre><code>Center(
+  child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+    Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(color: Colors.blue, borderRadius: BorderRadius.circular(10)),
+      child: const Text("Hello, Flutter!", style: TextStyle(fontSize: 20, color: Colors.white)),
+    ),
+    const SizedBox(height: 10),
+    Container( /* ...ซ้ำทั้งก้อนอีกรอบ... */ ),
+  ]))</code></pre>
+<h3>Custom Widget แบบ Stateless</h3>
+<pre><code>class CustomCard extends StatelessWidget {
+  final String text;
+  CustomCard({required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(color: Colors.blue, borderRadius: BorderRadius.circular(10)),
+      child: Text(text, style: const TextStyle(fontSize: 20, color: Colors.white)),
+    );
+  }
+}
+// วิธีใช้
+Center(child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+  CustomCard(text: "Hello, Flutter!"),
+  const SizedBox(height: 10),
+  CustomCard(text: "Welcome to Widgets"),
+]))</code></pre>
+<h3>Custom Widget แบบ Stateful (มี state ของตัวเอง)</h3>
+<pre><code>class CustomCounterWidget extends StatefulWidget {
+  final String title;
+  final Color backgroundColor;
+  const CustomCounterWidget({super.key, required this.title, required this.backgroundColor});
+  @override
+  _CustomCounterWidgetState createState() =&gt; _CustomCounterWidgetState();
+}
+
+class _CustomCounterWidgetState extends State&lt;CustomCounterWidget&gt; {
+  int _counter = 0;
+  void _incrementCounter() { setState(() { _counter++; }); }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(color: widget.backgroundColor, borderRadius: BorderRadius.circular(10)),
+      child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+        Text('${widget.title}: $_counter',
+             style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 16),
+        ElevatedButton(onPressed: _incrementCounter, child: const Text('Increment')),
+      ]));
+  }
+}</code></pre>
+<h3>เวอร์ชันอัปเกรด: ส่ง callback ขึ้นไปหา parent</h3>
+<p>เพิ่ม <code>final Function onPlayerWin;</code> แล้วเรียก callback เมื่อ counter ถึง 5 ส่งสีของทีมกลับไปให้ parent เปลี่ยนสีพื้นหลัง</p>
+<pre><code>// ใน _CustomCounterWidgetState
+void _incrementCounter() {
+  setState(() { _counter++; });
+  if (_counter == 5) {
+    widget.onPlayerWin(widget.backgroundColor);   // เรียก callback ของ parent
+  }
+}
+
+// ใน parent (StatefulWidget)
+Color winPlayerColor = Colors.white;
+void setWinPlayerColor(Color winColor) {
+  setState(() { winPlayerColor = winColor; });
+}
+// build: Scaffold(backgroundColor: winPlayerColor, ...)
+CustomCounterWidget(title: 'Team A', backgroundColor: Colors.red,  onPlayerWin: setWinPlayerColor),
+CustomCounterWidget(title: 'Team B', backgroundColor: Colors.blue, onPlayerWin: setWinPlayerColor),</code></pre>
+<div class="tip"><b>จำให้ได้:</b> ข้อมูลไหลลงผ่าน constructor (พารามิเตอร์) · เหตุการณ์ไหลขึ้นผ่าน callback · ใน Stateful widget เข้าถึงพารามิเตอร์ด้วย <code>widget.xxx</code></div>
+<h3>Lab: Instagram Profile UI</h3>
+<p>ต้องมี Avatar, Username, สถิติ (Posts/Followers/Following), ปุ่ม Follow/Message และตารางโพสต์ (Hint: <code>GridView.count</code>) แยกเป็น Widget ย่อยตามโครงสร้างด้านบน</p></section>
+
+<section id="theme"><h2>3. Theme</h2>
+<p><b>Theme</b> = การกำหนด style ของ UI ทั้งแอป (สี ฟอนต์ ขนาด รูปแบบ widget) ประโยชน์: UI เป็นระบบเดียวกัน, เปลี่ยนที่เดียวทั้งแอปเปลี่ยน, รองรับ Dark Mode ในตัว</p>
+<pre><code>// 1) ประกาศใน MaterialApp
+MaterialApp(
+  theme: ThemeData(
+    primarySwatch: Colors.red,                       // สีหลัก
+    textTheme: const TextTheme(
+      bodyMedium: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.deepPurple,          // สีปุ่มหลัก
+        foregroundColor: Colors.white)),             // สีข้อความปุ่ม
+  ),
+  home: const HomeScreen());
+
+// 2) ดึงค่าจาก Theme ใน Widget
+Text('Hello World', style: Theme.of(context).textTheme.bodyMedium),
+ElevatedButton(onPressed: () {}, child: const Text("Press Me!"))   // ได้สไตล์จาก theme อัตโนมัติ</code></pre></section>
+
+<section id="darklight"><h2>4. Light / Dark Mode</h2>
+<pre><code>MaterialApp(
+  theme: ThemeData.light(),          // ธีมสว่าง
+  darkTheme: ThemeData.dark(),       // ธีมมืด
+  themeMode: ThemeMode.system,       // ตามระบบ (Auto)
+  home: const HomeScreen());</code></pre>
+<table><tr><th>ThemeMode</th><th>ความหมาย</th></tr><tr><td><code>system</code></td><td>ตามการตั้งค่าเครื่อง</td></tr><tr><td><code>light</code></td><td>บังคับสว่าง</td></tr><tr><td><code>dark</code></td><td>บังคับมืด</td></tr></table>
+<h3>Custom Theme Dark/Light</h3>
+<pre><code>MaterialApp(
+  title: 'ThemeMode Demo',
+  theme: ThemeData.light().copyWith(
+    scaffoldBackgroundColor: Colors.white,
+    textTheme: const TextTheme(bodyMedium: TextStyle(color: Colors.black)),
+    appBarTheme: const AppBarTheme(backgroundColor: Colors.deepPurple),
+  ),
+  darkTheme: ThemeData.dark().copyWith(
+    scaffoldBackgroundColor: Colors.blueGrey[900],
+    textTheme: const TextTheme(bodyMedium: TextStyle(color: Colors.white)),
+    appBarTheme: AppBarTheme(backgroundColor: Colors.grey[800]),
+  ),
+  themeMode: ThemeMode.light,        // เปลี่ยนตามค่าปัจจุบัน
+  home: const HomeScreen());</code></pre>
+<p>ใช้ <code>copyWith</code> เพื่อแก้เฉพาะค่าที่ต้องการ จากธีมพื้นฐาน</p>
+<h3>โจทย์: ปุ่มสลับ Dark/Light บน AppBar (ตัวอย่างวิธีทำ)</h3>
+<p>Hint จากอาจารย์: ให้ <code>MaterialApp</code> เก็บ <code>ThemeMode</code> แล้วส่งฟังก์ชันสลับกับสถานะไปให้หน้าจอ เพื่อเปลี่ยน icon ปุ่ม <i>(โค้ดด้านล่างผมเขียนเองตาม Hint ไม่ใช่เฉลยของอาจารย์)</i></p>
+<pre><code>class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+  @override State&lt;MyApp&gt; createState() =&gt; _MyAppState();
+}
+class _MyAppState extends State&lt;MyApp&gt; {
+  ThemeMode _mode = ThemeMode.light;
+  void _toggle() => setState(() {
+    _mode = _mode == ThemeMode.light ? ThemeMode.dark : ThemeMode.light;
+  });
+
+  @override
+  Widget build(BuildContext context) => MaterialApp(
+    theme: ThemeData.light(), darkTheme: ThemeData.dark(), themeMode: _mode,
+    home: HomeScreen(mode: _mode, onToggle: _toggle));
+}
+
+// ใน HomeScreen: final ThemeMode mode; final VoidCallback onToggle;
+AppBar(title: const Text('Profile'), actions: [
+  IconButton(
+    icon: Icon(mode == ThemeMode.dark ? Icons.light_mode : Icons.dark_mode),
+    onPressed: onToggle),
+]),</code></pre></section>
+
+<section id="anim"><h2>5. Animation ใน Flutter</h2>
+<p>ทำให้ UI มีชีวิตชีวาและเป็นธรรมชาติ ใช้เมื่อสถานะ UI เปลี่ยน เช่น สี ขนาด การเคลื่อนที่ แบ่งเป็น <b>Implicit</b> และ <b>Explicit</b> (ปรับแต่งได้มากกว่าแต่ซับซ้อนกว่า)</p>
+<figure class="fig"><svg viewBox="0 0 640 170" role="img" aria-label="เปรียบเทียบ Implicit และ Explicit Animation">
+<g font-family="sans-serif" font-size="14" text-anchor="middle">
+<rect x="10" y="10" width="300" height="150" rx="12" fill="#dcfce7" stroke="#16a34a"/><text x="160" y="38" fill="#14532d" font-weight="bold">Implicit</text>
+<text x="160" y="68" fill="#14532d" font-size="13">setState() เปลี่ยนค่า</text><text x="160" y="92" fill="#14532d" font-size="13">↓</text><text x="160" y="116" fill="#14532d" font-size="13">Flutter ทำ animation ให้เอง</text><text x="160" y="142" fill="#14532d" font-size="12">ไม่ต้องใช้ Controller</text>
+<rect x="330" y="10" width="300" height="150" rx="12" fill="#fef3c7" stroke="#d97706"/><text x="480" y="38" fill="#78350f" font-weight="bold">Explicit</text>
+<text x="480" y="68" fill="#78350f" font-size="13">AnimationController + Tween</text><text x="480" y="92" fill="#78350f" font-size="13">↓</text><text x="480" y="116" fill="#78350f" font-size="13">คุมเริ่ม/หยุด/ความเร็ว/รูปแบบเอง</text><text x="480" y="142" fill="#78350f" font-size="12">ใช้กับ animation ซับซ้อน</text></g></svg></figure>
+<table><tr><th>Feature</th><th>Implicit</th><th>Explicit</th></tr>
+<tr><td>ความยาก</td><td>ง่าย</td><td>ยากกว่า</td></tr>
+<tr><td>การควบคุม</td><td>จำกัด</td><td>ควบคุมได้ทั้งหมด</td></tr>
+<tr><td>AnimationController</td><td>ไม่ต้องใช้</td><td>ต้องใช้</td></tr>
+<tr><td>เหมาะกับ</td><td>UI ทั่วไป</td><td>Animation ซับซ้อน</td></tr></table></section>
+
+<section id="implicit"><h2>6. Implicit Animations</h2>
+<p>Widget ที่แนะนำ: <code>AnimatedContainer</code> · <code>AnimatedOpacity</code> · <code>AnimatedAlign</code> · <code>AnimatedPadding</code> · <code>AnimatedPositioned</code> · <code>AnimatedSwitcher</code> ทุกตัวมี <code>duration</code> และเปลี่ยนค่าผ่าน <code>setState()</code></p>
+<h3>AnimatedContainer</h3>
+<pre><code>double _size = 100; Color _color = Colors.blue;
+void _changeBox() => setState(() {
+  _size = _size == 100 ? 200 : 100;
+  _color = _color == Colors.blue ? Colors.red : Colors.blue;
+});
+AnimatedContainer(
+  duration: const Duration(seconds: 1),
+  curve: Curves.easeInOut,       // รูปแบบการเคลื่อนไหว
+  width: _size, height: _size, color: _color,
+)</code></pre>
+<h3>AnimatedOpacity</h3>
+<pre><code>double _opacity = 1.0;
+void _toggleOpacity() => setState(() { _opacity = _opacity == 1.0 ? 0.2 : 1.0; });
+AnimatedOpacity(
+  duration: const Duration(seconds: 1),
+  opacity: _opacity,
+  child: Container(width: 100, height: 100, color: Colors.blue),
+)</code></pre>
+<h3>AnimatedAlign</h3>
+<pre><code>bool _isLeft = true;
+void _togglePosition() => setState(() { _isLeft = !_isLeft; });
+Stack(children: [
+  AnimatedAlign(
+    duration: const Duration(seconds: 1),
+    alignment: _isLeft ? Alignment.centerLeft : Alignment.centerRight,
+    child: Container(width: 100, height: 100, color: Colors.red)),
+  Center(child: ElevatedButton(onPressed: _togglePosition, child: const Text('Move Box'))),
+])</code></pre>
+<h3>AnimatedPadding</h3>
+<pre><code>double _padding = 10;
+void _increasePadding() => setState(() { _padding = _padding == 10 ? 50 : 10; });
+AnimatedPadding(
+  duration: const Duration(seconds: 1),
+  padding: EdgeInsets.all(_padding),
+  child: Container(width: 100, height: 100, color: Colors.green),
+)</code></pre>
+<h3>AnimatedPositioned (ต้องอยู่ใน Stack)</h3>
+<pre><code>bool _isLeft = true;
+void _moveBox() => setState(() { _isLeft = !_isLeft; });
+Stack(children: [
+  AnimatedPositioned(
+    duration: const Duration(seconds: 1),
+    left: _isLeft ? 20 : 200, top: 100,
+    child: Container(width: 100, height: 100, color: Colors.purple)),
+  Center(child: ElevatedButton(onPressed: _moveBox, child: const Text('Move Box'))),
+])</code></pre>
+<h3>AnimatedSwitcher (สลับ widget ต้องมี key ต่างกัน)</h3>
+<pre><code>bool _isFirst = true;
+void _switchWidget() => setState(() { _isFirst = !_isFirst; });
+AnimatedSwitcher(
+  duration: const Duration(seconds: 1),
+  child: _isFirst
+    ? Container(key: const ValueKey(1), width: 100, height: 100, color: Colors.orange)
+    : Container(key: const ValueKey(2), width: 100, height: 100, color: Colors.blue),
+)</code></pre>
+<div class="warn"><b>ระวัง:</b> AnimatedPositioned ใช้ใน <code>Stack</code> เท่านั้น · AnimatedSwitcher ต้องให้ child แต่ละตัวมี <code>key</code> ต่างกัน ไม่งั้นไม่เกิด animation</div></section>
+
+<section id="explicit"><h2>7. Explicit Animation (Advanced)</h2>
+<p>ผู้พัฒนาควบคุมเองทั้งหมด: เริ่มเมื่อใด หยุดเมื่อใด ความเร็ว และรูปแบบการเปลี่ยนค่า เครื่องมือหลัก: <code>AnimationController</code>, <code>Animation</code>, <code>Tween</code> · Widget: <code>FadeTransition</code>, <code>ScaleTransition</code>, <code>RotationTransition</code>, <code>SlideTransition</code></p>
+<p><i>ตัวอย่างด้านล่างผมเขียนเองให้เห็นโครงสร้างมาตรฐาน (ในสไลด์เป็นภาพ ผมดึงโค้ดออกมาไม่ได้)</i></p>
+<pre><code>class FadeDemo extends StatefulWidget {
+  const FadeDemo({super.key});
+  @override State&lt;FadeDemo&gt; createState() =&gt; _FadeDemoState();
+}
+class _FadeDemoState extends State&lt;FadeDemo&gt; with SingleTickerProviderStateMixin {
+  late final AnimationController _controller = AnimationController(
+    vsync: this, duration: const Duration(seconds: 2));
+  late final Animation&lt;double&gt; _fade =
+    Tween&lt;double&gt;(begin: 0, end: 1).animate(_controller);
+
+  @override void dispose() { _controller.dispose(); super.dispose(); }  // ต้อง dispose
+
+  @override
+  Widget build(BuildContext context) => Column(children: [
+    FadeTransition(opacity: _fade, child: const FlutterLogo(size: 100)),
+    ElevatedButton(onPressed: () =&gt; _controller.forward(), child: const Text('Start')),
+    ElevatedButton(onPressed: () =&gt; _controller.reverse(), child: const Text('Reverse')),
+  ]);
+}</code></pre>
+<div class="tip"><b>จำ:</b> ต้อง <code>with SingleTickerProviderStateMixin</code> เพื่อให้มี <code>vsync: this</code> · สั่งงานด้วย <code>forward()</code>, <code>reverse()</code>, <code>repeat()</code>, <code>stop()</code> · อย่าลืม <code>dispose()</code></div></section>
+
+<section id="lab"><h2>8. แบบฝึกหัด: ไฟจราจร</h2>
+<p>โจทย์: ไฟแดง/เหลือง/เขียว + ปุ่ม "เปลี่ยนไฟ" วนลูป เริ่มแดง (opacity 1.0) ไฟอื่น 0.3 → แดง→เหลือง→เขียว→กลับแดง Hint: <code>AnimatedOpacity</code> + <code>StatefulWidget</code> <i>(โค้ดผมเขียนเอง)</i></p>
+<figure class="fig"><svg viewBox="0 0 300 140" role="img" aria-label="สัญญาณไฟจราจร ไฟแดงสว่าง"><g font-family="sans-serif" font-size="12" text-anchor="middle">
+<rect x="100" y="5" width="100" height="130" rx="14" fill="#1f2937"/>
+<circle cx="150" cy="30" r="17" fill="#ef4444"/><circle cx="150" cy="70" r="17" fill="#eab308" opacity=".3"/><circle cx="150" cy="110" r="17" fill="#22c55e" opacity=".3"/>
+<text x="235" y="34" fill="#64748b">1.0</text><text x="235" y="74" fill="#64748b">0.3</text><text x="235" y="114" fill="#64748b">0.3</text></g></svg><figcaption>สถานะเริ่มต้น</figcaption></figure>
+<pre><code>class TrafficLight extends StatefulWidget {
+  const TrafficLight({super.key});
+  @override State&lt;TrafficLight&gt; createState() =&gt; _TrafficLightState();
+}
+class _TrafficLightState extends State&lt;TrafficLight&gt; {
+  int _current = 0;   // 0=แดง 1=เหลือง 2=เขียว
+  void _next() => setState(() { _current = (_current + 1) % 3; });
+
+  Widget _light(Color color, int index) => AnimatedOpacity(
+    duration: const Duration(milliseconds: 500),
+    opacity: _current == index ? 1.0 : 0.3,
+    child: Container(width: 80, height: 80,
+      margin: const EdgeInsets.all(8),
+      decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
+  );
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+    appBar: AppBar(title: const Text('Traffic Light')),
+    body: Center(child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+      _light(Colors.red, 0), _light(Colors.yellow, 1), _light(Colors.green, 2),
+      const SizedBox(height: 24),
+      ElevatedButton(onPressed: _next, child: const Text('เปลี่ยนไฟ')),
+    ])),
+  );
+}</code></pre>
+<p>หัวใจคือ <code>(_current + 1) % 3</code> ทำให้วนกลับไปแดงหลังเขียว</p></section>
+
+<section id="quiz"><h2>9. ข้อสอบจำลอง (กดดูเฉลย)</h2>
+<details><summary>1) UI Composition คืออะไร และมีข้อดีอย่างไร?</summary><p>การประกอบ Widget เล็ก ๆ เป็นหน้าจอใหญ่ ข้อดี: อ่านง่าย โครงสร้างชัด แก้ง่าย นำกลับมาใช้ซ้ำได้</p></details>
+<details><summary>2) แนวคิดสำคัญของ Flutter ที่เกี่ยวกับ UI คืออะไร?</summary><p>Everything is a Widget</p></details>
+<details><summary>3) ใน Stateful widget เข้าถึง property ของ widget ด้วยอะไร?</summary><p><code>widget.xxx</code> เช่น <code>widget.title</code></p></details>
+<details><summary>4) ส่งข้อมูลจาก child กลับไป parent ทำอย่างไร?</summary><p>ส่งฟังก์ชัน (callback) เข้าไปทาง constructor แล้ว child เรียกใช้ เช่น <code>onPlayerWin</code></p></details>
+<details><summary>5) ธีมมืดกำหนดที่พารามิเตอร์ใดของ MaterialApp และสลับด้วยอะไร?</summary><p><code>darkTheme</code> สลับด้วย <code>themeMode</code> (system/light/dark)</p></details>
+<details><summary>6) ข้อแตกต่างระหว่าง Implicit กับ Explicit Animation?</summary><p>Implicit: ง่าย ใช้ setState ไม่ต้องมี Controller เหมาะ UI ทั่วไป · Explicit: ใช้ AnimationController คุมเองทั้งหมด เหมาะ animation ซับซ้อน</p></details>
+<details><summary>7) ข้อใดไม่ใช่ Implicit Animation: AnimatedOpacity, AnimatedAlign, FadeTransition, AnimatedPadding</summary><p>FadeTransition (เป็น Explicit ต้องใช้ Animation/Controller)</p></details>
+<details><summary>8) AnimatedPositioned ต้องอยู่ใน widget ใด?</summary><p><code>Stack</code></p></details>
+<details><summary>9) (อัตนัย) อธิบายวิธีทำไฟจราจรด้วย AnimatedOpacity</summary><p>ใช้ StatefulWidget เก็บ index ไฟปัจจุบัน แต่ละดวงครอบด้วย AnimatedOpacity: opacity = 1.0 ถ้าเป็นดวงปัจจุบัน ไม่งั้น 0.3 · ปุ่มเรียก setState เพิ่ม index แบบ <code>(i+1) % 3</code></p></details>
+</section>
+</main>
+<footer><a href="chapter5.html">← Chapter 5</a> · Chapter 6 · <a href="index.html">หน้าแรก</a></footer>
+</body></html>

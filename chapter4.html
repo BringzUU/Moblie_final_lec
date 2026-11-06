@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>บทที่ 4 Form และ API — สรุปสอบบรรยาย Flutter Mobile</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top"><a href="index.html">← หน้าแรก</a><strong>บทที่ 4 — Form และการเชื่อมต่อ API</strong></header>
+<main>
+<h1>บทที่ 4: Form และการเชื่อมต่อ API</h1>
+<p style="color:var(--muted)">การจัดการฟอร์มและรับข้อมูลจากผู้ใช้ · API / REST · JSON · แพ็กเกจ http</p>
+
+<nav class="toc">
+<a href="#form">Form คืออะไร</a>
+<a href="#tff">TextFormField</a>
+<a href="#formw">Form + GlobalKey</a>
+<a href="#ctrl">Controller</a>
+<a href="#inputs">Dropdown/Checkbox/Radio/Switch</a>
+<a href="#exform">โจทย์ Form</a>
+<a href="#api">API คืออะไร</a>
+<a href="#json">JSON ใน Dart</a>
+<a href="#http">แพ็กเกจ http</a>
+<a href="#exapi">โจทย์ ListView จาก API</a>
+<a href="#aqi">Assignment AQI</a>
+<a href="#quiz">ทวนก่อนสอบ</a>
+</nav>
+
+<!-- ===================== FORM ===================== -->
+<h2 id="form">1. Form คืออะไร</h2>
+<div class="card">
+<b>Form</b> คือองค์ประกอบที่ช่วยให้ผู้ใช้ <b>โต้ตอบ (Interact)</b> กับระบบได้ โดยเป็นการ<b>ป้อนข้อมูลเข้าสู่ระบบ (Input)</b> เช่น ลงทะเบียน เข้าสู่ระบบ บันทึกข้อมูล
+</div>
+<table>
+<tr><th>Widget</th><th>หน้าที่</th></tr>
+<tr><td><code>TextFormField</code></td><td>ช่องกรอกข้อความ (ชื่อ อีเมล รหัสผ่าน) มี <code>validator</code> ตรวจสอบค่า</td></tr>
+<tr><td><code>Form</code></td><td>ตัวจัดการฟอร์มทั้งหมด ครอบ TextFormField หลายช่อง ใช้ <code>GlobalKey&lt;FormState&gt;</code> ตรวจสอบ/บันทึกค่า</td></tr>
+<tr><td><code>TextEditingController</code></td><td>เก็บ/ดึง/อัปเดตค่าในช่องกรอก</td></tr>
+<tr><td><code>DropdownButtonFormField</code></td><td>เลือกค่าจากรายการ (Drop down) รองรับ validator</td></tr>
+<tr><td><code>CheckboxListTile</code></td><td>เลือก true/false (Boolean) เลือกได้หลายตัว</td></tr>
+<tr><td><code>RadioListTile</code></td><td>เลือกได้ <b>เพียงตัวเดียว</b> จากหลายตัวเลือก เช่น เพศ</td></tr>
+<tr><td><code>SwitchListTile</code></td><td>สลับ ON/OFF เช่น เปิด/ปิดการแจ้งเตือน</td></tr>
+</table>
+
+<figure class="fig">
+<svg viewBox="0 0 560 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="โครงสร้าง Form">
+<style>.b{fill:var(--card);stroke:var(--accent);stroke-width:2}.t{fill:var(--text);font:600 14px system-ui,sans-serif;text-anchor:middle}.l{stroke:var(--muted);stroke-width:1.5;fill:none}.s{fill:var(--muted);font:12px system-ui,sans-serif;text-anchor:middle}.k{fill:var(--warn);stroke:#e0a100;stroke-width:2}</style>
+<rect class="k" x="200" y="10" width="160" height="40" rx="8"/><text class="t" x="280" y="35">Form (key: _formKey)</text>
+<path class="l" d="M280 50V76M280 76H100M280 76H280M280 76H460M100 76V100M280 76V100M460 76V100"/>
+<rect class="b" x="20" y="100" width="160" height="40" rx="8"/><text class="t" x="100" y="125">TextFormField</text>
+<rect class="b" x="200" y="100" width="160" height="40" rx="8"/><text class="t" x="280" y="125">TextFormField</text>
+<rect class="b" x="380" y="100" width="160" height="40" rx="8"/><text class="t" x="460" y="125">Button (Save)</text>
+<text class="s" x="100" y="160">validator → null = ผ่าน</text>
+<text class="s" x="280" y="160">validator → String = error</text>
+<text class="s" x="460" y="160">กดแล้วเรียก validate()</text>
+<rect class="b" x="110" y="190" width="340" height="44" rx="8"/><text class="t" x="280" y="217">_formKey.currentState!.validate()</text>
+<path class="l" d="M460 140V212H450"/>
+<text class="s" x="280" y="260">true = ทุกช่องผ่าน → ทำงานต่อ · false = แสดงข้อความ error ใต้ช่องที่ไม่ผ่าน</text>
+</svg>
+<figcaption>Form ครอบ TextFormField หลายช่อง แล้วใช้ GlobalKey สั่ง validate ทีเดียว</figcaption>
+</figure>
+
+<h2 id="tff">2. TextFormField</h2>
+<p>ช่องกรอกข้อความ ใช้ <code>decoration</code> ตกแต่ง, <code>validator</code> ตรวจสอบ, <code>onChanged</code> รับค่าทุกครั้งที่พิมพ์</p>
+<pre><code>TextFormField(
+  decoration: const InputDecoration(labelText: 'Name'),
+  validator: (value) {
+    if (value == null || value.isEmpty) {
+      return 'Please enter your name';   // คืน String = ไม่ผ่าน (แสดง error)
+    }
+    return null;                         // คืน null = ผ่าน
+  },
+  onChanged: (value) {
+    print(value);
+  },
+)</code></pre>
+<div class="ok"><b>จำให้ได้:</b> <code>validator</code> ถ้า<b>ผ่าน → return null</b> · ถ้า<b>ไม่ผ่าน → return ข้อความ error (String)</b></div>
+
+<h3>ตกแต่งกรอบ (InputDecoration)</h3>
+<pre><code>TextFormField(
+  controller: _nameController,
+  decoration: const InputDecoration(
+    prefixIcon: Icon(Icons.person),                 // ไอคอนหน้าช่อง
+    hintText: 'Name',                               // ข้อความจาง ๆ
+    border: OutlineInputBorder(
+      borderRadius: BorderRadius.all(Radius.circular(15)),  // มุมโค้ง
+    ),
+    focusedBorder: OutlineInputBorder(
+      borderSide: BorderSide(width: 2.0),           // ขอบหนาตอนโฟกัส
+    ),
+  ),
+  validator: (value) {
+    if (value == null || value.isEmpty) {
+      return 'Please enter your name';
+    }
+    return null;
+  },
+)</code></pre>
+<table>
+<tr><th>Property</th><th>ใช้ทำอะไร</th></tr>
+<tr><td><code>labelText</code> / <code>hintText</code></td><td>ป้ายชื่อช่อง / ข้อความแนะนำ</td></tr>
+<tr><td><code>prefixIcon</code></td><td>ไอคอนด้านหน้า</td></tr>
+<tr><td><code>border</code> / <code>focusedBorder</code></td><td>กรอบปกติ / กรอบตอนกำลังพิมพ์</td></tr>
+<tr><td><code>keyboardType</code></td><td>ชนิดแป้นพิมพ์ เช่น <code>TextInputType.number</code></td></tr>
+<tr><td><code>obscureText: true</code></td><td>ซ่อนข้อความ (รหัสผ่าน)</td></tr>
+</table>
+
+<h2 id="formw">3. Form + GlobalKey&lt;FormState&gt;</h2>
+<p>ครอบ TextFormField หลายช่องด้วย <code>Form</code> แล้วผูก <code>key</code> กับ <code>GlobalKey&lt;FormState&gt;</code> เพื่อเรียก <code>validate()</code> ตรวจทุกช่องพร้อมกัน</p>
+<pre><code>class _MyWidgetState extends State&lt;MyWidget&gt; {
+  final _formKey = GlobalKey&lt;FormState&gt;();      // 1. สร้าง key
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Simple Form')),
+      body: Form(
+        key: _formKey,                           // 2. ผูก key กับ Form
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            TextFormField(
+              decoration: const InputDecoration(labelText: 'Name'),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter your name';
+                }
+                return null;
+              },
+            ),
+            TextFormField(
+              decoration: const InputDecoration(labelText: 'Email'),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter your email';
+                }
+                return null;
+              },
+            ),
+            TextButton(
+              onPressed: () {
+                if (_formKey.currentState!.validate()) {   // 3. ตรวจทุกช่อง
+                  print('Form is valid');
+                }
+              },
+              child: const Text('Save'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}</code></pre>
+<div class="card"><b>3 ขั้นตอน:</b> ① สร้าง <code>GlobalKey&lt;FormState&gt;</code> ② ใส่ <code>key: _formKey</code> ที่ <code>Form</code> ③ เรียก <code>_formKey.currentState!.validate()</code> ตอนกดปุ่ม (ได้ <code>true</code> เมื่อทุก validator คืน null)</div>
+
+<h2 id="ctrl">4. TextEditingController</h2>
+<p>ใช้<b>ดึงค่า</b>จากช่องกรอก (<code>.text</code>) และ<b>กำหนด/ล้างค่า</b>ในช่องได้ ผูกผ่าน <code>controller:</code></p>
+<pre><code>class _MyWidgetState extends State&lt;MyWidget&gt; {
+  final _formKey = GlobalKey&lt;FormState&gt;();
+  final TextEditingController _nameController = TextEditingController();
+
+  @override
+  void dispose() {
+    _nameController.dispose();     // คืนทรัพยากรเมื่อไม่ใช้แล้ว
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Simple Form')),
+      body: Form(
+        key: _formKey,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            TextFormField(
+              controller: _nameController,              // ผูก controller
+              decoration: const InputDecoration(labelText: 'Name'),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter your name';
+                }
+                return null;
+              },
+              onChanged: (value) {
+                print(value);
+              },
+            ),
+            TextButton(
+              onPressed: () {
+                print('User input: ${_nameController.text}');   // ดึงค่า
+              },
+              child: const Text('Save'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}</code></pre>
+<div class="tip">💡 <code>onChanged</code> ได้ค่าทุกครั้งที่พิมพ์ · <code>controller.text</code> อ่านค่าตอนไหนก็ได้ (เช่น ตอนกดปุ่ม) · <code>controller.clear()</code> ล้างช่อง · ควร <code>dispose()</code> controller เมื่อปิดหน้า (ป้องกัน memory leak)</div>
+
+<h2 id="inputs">5. Input แบบเลือก: Dropdown / Checkbox / Radio / Switch</h2>
+<figure class="fig">
+<svg viewBox="0 0 600 270" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Input widgets">
+<style>.p{fill:var(--card);stroke:var(--line);stroke-width:2}.h{fill:var(--accent);font:700 14px system-ui,sans-serif}.x{fill:var(--text);font:13px system-ui,sans-serif}.m{fill:var(--muted);font:12px system-ui,sans-serif}.bx{fill:none;stroke:var(--text);stroke-width:2}.on{fill:#2e9e5b}</style>
+<rect class="p" x="10" y="10" width="285" height="120" rx="10"/><text class="h" x="24" y="34">Dropdown</text>
+<rect class="bx" x="24" y="46" width="200" height="30" rx="4"/><text class="x" x="34" y="66">Option 1</text><path d="M204 56l8 10 8-10" class="bx"/>
+<text class="m" x="24" y="104">เลือก 1 ค่าจากรายการที่พับอยู่</text><text class="m" x="24" y="120">value + items + onChanged</text>
+<rect class="p" x="305" y="10" width="285" height="120" rx="10"/><text class="h" x="319" y="34">Checkbox</text>
+<rect class="bx" x="319" y="46" width="18" height="18"/><path d="M322 55l5 5 8-10" stroke="#2e9e5b" stroke-width="3" fill="none"/><text class="x" x="346" y="60">Accept Terms</text>
+<rect class="bx" x="319" y="72" width="18" height="18"/><text class="x" x="346" y="86">Newsletter</text>
+<text class="m" x="319" y="116">true/false · เลือกได้หลายตัว</text>
+<rect class="p" x="10" y="140" width="285" height="120" rx="10"/><text class="h" x="24" y="164">Radio</text>
+<circle class="bx" cx="32" cy="182" r="8"/><text class="x" x="48" y="187">Male</text>
+<circle class="bx" cx="32" cy="206" r="8"/><circle class="on" cx="32" cy="206" r="4"/><text class="x" x="48" y="211">Female</text>
+<text class="m" x="24" y="244">เลือกได้ตัวเดียว (groupValue เดียวกัน)</text>
+<rect class="p" x="305" y="140" width="285" height="120" rx="10"/><text class="h" x="319" y="164">Switch</text>
+<text class="x" x="319" y="192">Enable Notifications</text>
+<rect x="500" y="176" width="44" height="22" rx="11" class="on"/><circle cx="533" cy="187" r="8" fill="#fff"/>
+<text class="m" x="319" y="244">ON/OFF · ตั้งค่า เปิด-ปิดฟังก์ชัน</text>
+</svg>
+<figcaption>หน้าตาของ Input 4 แบบ</figcaption>
+</figure>
+
+<table>
+<tr><th></th><th>Dropdown</th><th>Checkbox</th><th>Radio</th><th>Switch</th></tr>
+<tr><td>Widget</td><td><code>DropdownButtonFormField</code></td><td><code>CheckboxListTile</code></td><td><code>RadioListTile</code></td><td><code>SwitchListTile</code></td></tr>
+<tr><td>ค่าที่เก็บ</td><td>ชนิดเดียวกับ items</td><td>bool</td><td>ค่า value ของตัวที่เลือก</td><td>bool</td></tr>
+<tr><td>เลือกได้</td><td>1 ค่า</td><td>หลายค่า</td><td>1 ค่า</td><td>ON/OFF</td></tr>
+<tr><td>ตัวแปรหลัก</td><td><code>value</code></td><td><code>value</code></td><td><code>groupValue</code></td><td><code>value</code></td></tr>
+</table>
+
+<h3>Dropdown</h3>
+<pre><code>String? _selectedItem;
+
+DropdownButtonFormField&lt;String&gt;(
+  decoration: const InputDecoration(labelText: 'Select an option'),
+  value: _selectedItem,
+  items: ['Option 1', 'Option 2', 'Option 3']
+      .map((item) =&gt; DropdownMenuItem(value: item, child: Text(item)))
+      .toList(),
+  onChanged: (value) {
+    _selectedItem = value;
+  },
+  validator: (value) =&gt; value == null ? 'Please select an option' : null,
+),</code></pre>
+<h3>Checkbox</h3>
+<pre><code>bool _isChecked = false;
+
+CheckboxListTile(
+  title: const Text('Accept Terms &amp; Conditions'),
+  value: _isChecked,
+  onChanged: (value) {
+    setState(() {
+      _isChecked = value!;
+    });
+  },
+),</code></pre>
+<h3>Radio</h3>
+<pre><code>String? _gender = 'Female';
+
+Column(children: [
+  RadioListTile(
+    title: const Text('Male'),
+    value: 'Male',
+    groupValue: _gender,          // ตัวที่เลือกอยู่ตอนนี้
+    onChanged: (value) {
+      setState(() {
+        _gender = value.toString();
+      });
+    },
+  ),
+  RadioListTile(
+    title: const Text('Female'),
+    value: 'Female',
+    groupValue: _gender,
+    onChanged: (value) {
+      setState(() {
+        _gender = value.toString();
+      });
+    },
+  ),
+]),</code></pre>
+<h3>Switch</h3>
+<pre><code>bool _isSwitched = true;
+
+SwitchListTile(
+  title: const Text('Enable Notifications'),
+  value: _isSwitched,
+  onChanged: (value) {
+    setState(() {
+      _isSwitched = value;
+    });
+  },
+),</code></pre>
+<div class="tip">⚠️ Checkbox / Radio / Switch ต้องเรียก <code>setState()</code> ตอน <code>onChanged</code> เพื่อให้หน้าจอเปลี่ยนตามค่า (จึงต้องอยู่ใน <b>StatefulWidget</b>) · ส่วน Dropdown ในสไลด์ตัวอย่างไม่ได้ใส่ setState แต่ถ้าอยากให้ช่องแสดงค่าที่เพิ่งเลือกก็ควรใส่</div>
+
+<h2 id="exform">6. แบบฝึกหัด Form</h2>
+<h3>ข้อ 1 — คำนวณ BMI</h3>
+<div class="card">
+<b>โจทย์:</b> สร้างหน้า "คำนวณ BMI" ด้วย StatefulWidget + Form<br>
+1. <code>GlobalKey&lt;FormState&gt;</code> · TextFormField น้ำหนัก (kg) และส่วนสูง (cm) ตั้ง <code>keyboardType: TextInputType.number</code><br>
+2. ทั้งสองช่องต้องมี validator — ถ้าว่างแสดง "กรุณากรอกข้อมูล"<br>
+3. ปุ่ม "คำนวณ BMI" → <code>validate()</code> ผ่านจึงคำนวณ · สูตร BMI = น้ำหนัก / (ส่วนสูง(m) × ส่วนสูง(m)) · <b>ต้องแปลง cm → m ก่อน</b> (÷100)<br>
+4. เก็บผลใน <code>String result = ""</code> แล้ว <code>setState()</code> แสดงใต้ปุ่ม เช่น "ค่า BMI ของคุณ คือ: 22.5"<br>
+<i>Hint: ใช้ <code>double.tryParse()</code> ป้องกัน error ถ้าแปลงไม่ได้</i>
+</div>
+<details><summary>ดูเฉลย (โค้ดเต็ม)</summary>
+<pre><code>import 'package:flutter/material.dart';
+
+class BmiScreen extends StatefulWidget {
+  const BmiScreen({super.key});
+
+  @override
+  State&lt;BmiScreen&gt; createState() =&gt; _BmiScreenState();
+}
+
+class _BmiScreenState extends State&lt;BmiScreen&gt; {
+  final _formKey = GlobalKey&lt;FormState&gt;();
+  final weightController = TextEditingController();
+  final heightController = TextEditingController();
+  String result = "";
+
+  void calculate() {
+    if (_formKey.currentState!.validate()) {
+      final double? weight = double.tryParse(weightController.text);
+      final double? heightCm = double.tryParse(heightController.text);
+      if (weight == null || heightCm == null || heightCm == 0) return;
+
+      final heightM = heightCm / 100;                 // cm → m
+      final bmi = weight / (heightM * heightM);
+      setState(() {
+        result = 'ค่า BMI ของคุณ คือ: ${bmi.toStringAsFixed(1)}';
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    weightController.dispose();
+    heightController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('คำนวณ BMI')),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            children: [
+              TextFormField(
+                controller: weightController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(labelText: 'น้ำหนัก (kg)'),
+                validator: (v) =&gt; (v == null || v.isEmpty) ? 'กรุณากรอกข้อมูล' : null,
+              ),
+              TextFormField(
+                controller: heightController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(labelText: 'ส่วนสูง (cm)'),
+                validator: (v) =&gt; (v == null || v.isEmpty) ? 'กรุณากรอกข้อมูล' : null,
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(onPressed: calculate, child: const Text('คำนวณ BMI')),
+              const SizedBox(height: 16),
+              Text(result, style: const TextStyle(fontSize: 20)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}</code></pre></details>
+
+<h3>ข้อ 2 — คำนวณค่าบริการล้างรถ</h3>
+<div class="card">
+<b>โจทย์:</b> แอป "คำนวณค่าบริการล้างรถ"<br>
+1. <code>GlobalKey&lt;FormState&gt;</code> · ตัวแปร <code>int _basePrice = 150;</code><br>
+2. <code>DropdownButton&lt;int&gt;</code> (หรือ Radio) เลือกขนาดรถ: รถเล็ก 150 · รถเก๋ง 200 · SUV/กระบะ 250 → เลือกแล้ว <code>setState()</code> อัปเดต <code>_basePrice</code><br>
+3. <code>bool _vacuum</code>, <code>bool _wax</code> + <code>CheckboxListTile</code> "ดูดฝุ่น (+50)" และ "เคลือบแว็กซ์ (+100)"<br>
+4. ปุ่ม "คำนวณราคา": Total = _basePrice, ถ้า _vacuum → +50, ถ้า _wax → +100<br>
+5. แสดง "ราคารวม: $Total บาท" ตัวใหญ่ อัปเดตทุกครั้งที่ <code>setState()</code>
+</div>
+<details><summary>ดูเฉลย (โค้ดเต็ม)</summary>
+<pre><code>import 'package:flutter/material.dart';
+
+class CarWashScreen extends StatefulWidget {
+  const CarWashScreen({super.key});
+
+  @override
+  State&lt;CarWashScreen&gt; createState() =&gt; _CarWashScreenState();
+}
+
+class _CarWashScreenState extends State&lt;CarWashScreen&gt; {
+  final _formKey = GlobalKey&lt;FormState&gt;();
+  int _basePrice = 150;
+  bool _vacuum = false;
+  bool _wax = false;
+  int _total = 150;
+
+  void _calculate() {
+    int total = _basePrice;
+    if (_vacuum) total += 50;
+    if (_wax) total += 100;
+    setState(() {
+      _total = total;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('ค่าบริการล้างรถ')),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            children: [
+              DropdownButtonFormField&lt;int&gt;(
+                value: _basePrice,
+                decoration: const InputDecoration(labelText: 'ขนาดรถ'),
+                items: const [
+                  DropdownMenuItem(value: 150, child: Text('รถเล็ก (Small)')),
+                  DropdownMenuItem(value: 200, child: Text('รถเก๋ง (Medium)')),
+                  DropdownMenuItem(value: 250, child: Text('รถ SUV/กระบะ (Large)')),
+                ],
+                onChanged: (value) {
+                  setState(() {
+                    _basePrice = value!;
+                  });
+                },
+              ),
+              CheckboxListTile(
+                title: const Text('ดูดฝุ่น (+50 บาท)'),
+                value: _vacuum,
+                onChanged: (v) =&gt; setState(() =&gt; _vacuum = v!),
+              ),
+              CheckboxListTile(
+                title: const Text('เคลือบแว็กซ์ (+100 บาท)'),
+                value: _wax,
+                onChanged: (v) =&gt; setState(() =&gt; _wax = v!),
+              ),
+              ElevatedButton(onPressed: _calculate, child: const Text('คำนวณราคา')),
+              const SizedBox(height: 16),
+              Text('ราคารวม: $_total บาท',
+                  style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}</code></pre></details>
+
+<!-- ===================== API ===================== -->
+<h2 id="api">7. API คืออะไร</h2>
+<div class="card">
+<b>API (Application Programming Interface)</b> คือชุดกฎและโปรโตคอลที่กำหนดวิธีการสื่อสารระหว่างซอฟต์แวร์/ระบบต่าง ๆ ทำหน้าที่เป็น<b>ตัวกลาง</b>ให้แอปแลกเปลี่ยนข้อมูลกันได้ <b>โดยไม่ต้องรู้โครงสร้างภายในของกันและกัน</b>
+</div>
+
+<h3>API ทำงานอย่างไร (4 ขั้นตอน)</h3>
+<ol>
+<li><b>Client</b> (ผู้ร้องขอ) → แอปของเราส่ง <b>request</b> ไปที่ API (เช่น ขอข้อมูลผู้ใช้)</li>
+<li><b>Server</b> (ผู้ให้บริการ API) → ประมวลผล request และดึงข้อมูลจากฐานข้อมูล</li>
+<li><b>Response</b> → API ส่งข้อมูลกลับมาเป็น <b>JSON</b> หรือ XML</li>
+<li>Client นำข้อมูลไปแสดงผล เช่น ใน <code>ListView</code> หรือ UI อื่น ๆ</li>
+</ol>
+<figure class="fig">
+<svg viewBox="0 0 640 220" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="API flow">
+<style>.t{fill:#fff;font:600 14px system-ui,sans-serif;text-anchor:middle}.l{fill:var(--text);font:13px system-ui,sans-serif;text-anchor:middle}.m{fill:var(--muted);font:12px system-ui,sans-serif;text-anchor:middle}.ar{stroke:var(--muted);stroke-width:2;fill:none;marker-end:url(#a1)}</style>
+<defs><marker id="a1" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="var(--muted)"/></marker></defs>
+<rect x="10" y="60" width="140" height="90" rx="10" fill="#0b6bcb"/><text class="t" x="80" y="100">Client</text><text class="t" x="80" y="124" style="font-size:12px;font-weight:400">Flutter App</text>
+<rect x="250" y="60" width="140" height="90" rx="10" fill="#2e9e5b"/><text class="t" x="320" y="100">API Server</text><text class="t" x="320" y="124" style="font-size:12px;font-weight:400">REST API</text>
+<rect x="490" y="60" width="140" height="90" rx="10" fill="#8b5cf6"/><text class="t" x="560" y="100">Database</text>
+<path class="ar" d="M155 85H245"/><text class="l" x="200" y="76">① request</text>
+<path class="ar" d="M395 85H485"/><text class="l" x="440" y="76">② query</text>
+<path class="ar" d="M485 125H395"/><text class="l" x="440" y="146">ข้อมูล</text>
+<path class="ar" d="M245 125H155"/><text class="l" x="200" y="146">③ response (JSON)</text>
+<text class="m" x="80" y="185">④ นำไปแสดงใน ListView / UI</text>
+</svg>
+<figcaption>Client ↔ API Server ↔ Database</figcaption>
+</figure>
+
+<h3>RESTful API — HTTP Method</h3>
+<table>
+<tr><th>Method</th><th>CRUD</th><th>ความหมาย</th><th>Status ที่คาดหวัง</th></tr>
+<tr><td><code>GET</code></td><td>Read</td><td>ขอ/ดึงข้อมูล</td><td>200</td></tr>
+<tr><td><code>POST</code></td><td>Create</td><td>สร้างข้อมูลใหม่</td><td>201</td></tr>
+<tr><td><code>PUT</code></td><td>Update</td><td>แก้ไขข้อมูล</td><td>200</td></tr>
+<tr><td><code>DELETE</code></td><td>Delete</td><td>ลบข้อมูล</td><td>200</td></tr>
+</table>
+<div class="tip">ทดสอบ GET ได้ง่าย ๆ โดยเปิด URL ใน Browser เช่น <code>https://dummyjson.com/users/1</code> (Browser เรียกด้วย method GET)</div>
+
+<h3>ประโยชน์ของ API</h3>
+<ul>
+<li>เชื่อมแอปเข้าด้วยกัน เช่น Flutter App ↔ Backend (Node.js, FastAPI, Django)</li>
+<li>ลดงานซ้ำซ้อน ใช้ API ของผู้ให้บริการ เช่น Google Maps, OpenWeather</li>
+<li>ข้อมูลอัปเดตแบบ Real-time</li>
+<li>รองรับการขยายแอป เพิ่มฟีเจอร์ได้ง่ายโดยใช้ API ระบบอื่น</li>
+</ul>
+
+<h2 id="json">8. JSON ใน Flutter (Dart)</h2>
+<div class="card">
+<b>JSON (JavaScript Object Notation)</b> คือรูปแบบข้อมูลที่ใช้แลกเปลี่ยนระหว่างระบบ มีโครงสร้างแบบ <b>Key–Value Pair</b> อ่าน/เขียนง่าย
+</div>
+<pre><code>{
+  "id": 1,
+  "firstName": "Emily",
+  "username": "emilys",
+  "email": "emily@example.com"
+}</code></pre>
+
+<figure class="fig">
+<svg viewBox="0 0 640 190" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="แปลง JSON">
+<style>.bx{fill:var(--card);stroke:var(--accent);stroke-width:2}.t{fill:var(--text);font:600 14px system-ui,sans-serif;text-anchor:middle}.l{fill:var(--muted);font:12.5px ui-monospace,Consolas,monospace;text-anchor:middle}.ar{stroke:var(--muted);stroke-width:2;fill:none;marker-end:url(#a2)}</style>
+<defs><marker id="a2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="var(--muted)"/></marker></defs>
+<rect class="bx" x="10" y="50" width="150" height="80" rx="10"/><text class="t" x="85" y="85">JSON String</text><text class="l" x="85" y="108">'{"name":"John"}'</text>
+<rect class="bx" x="245" y="50" width="150" height="80" rx="10"/><text class="t" x="320" y="85">Map / List</text><text class="l" x="320" y="108">{'name':'John'}</text>
+<rect class="bx" x="480" y="50" width="150" height="80" rx="10"/><text class="t" x="555" y="85">Dart Object</text><text class="l" x="555" y="108">User(name)</text>
+<path class="ar" d="M165 75H240"/><text class="l" x="202" y="66">jsonDecode</text>
+<path class="ar" d="M240 108H165"/><text class="l" x="202" y="128">jsonEncode</text>
+<path class="ar" d="M400 75H475"/><text class="l" x="437" y="66">fromJson</text>
+<path class="ar" d="M475 108H400"/><text class="l" x="437" y="128">toJson</text>
+<text class="l" x="320" y="170">ต้อง import 'dart:convert';</text>
+</svg>
+<figcaption>เส้นทางการแปลงข้อมูลระหว่าง JSON ↔ Map ↔ Object</figcaption>
+</figure>
+
+<h3>1) JSON → Dart (jsonDecode)</h3>
+<pre><code>import 'dart:convert';
+
+void main() {
+  String jsonString = '{"name": "John Doe", "age": 25}';
+  Map&lt;String, dynamic&gt; user = jsonDecode(jsonString);
+  print(user['name']);   // John Doe
+}</code></pre>
+<h3>2) Dart → JSON (jsonEncode)</h3>
+<pre><code>import 'dart:convert';
+
+void main() {
+  Map&lt;String, dynamic&gt; user = {"name": "Alice", "age": 22};
+  String jsonString = jsonEncode(user);
+  print(jsonString);     // {"name":"Alice","age":22}
+}</code></pre>
+<h3>3) JSON Array → List ของ Dart Object (Model Class)</h3>
+<pre><code>import 'dart:convert';
+
+// Model Class
+class Student {
+  final int id;
+  final String name;
+
+  Student(this.id, this.name);                 // Constructor
+
+  Student.fromJson(Map&lt;String, dynamic&gt; json)  // JSON → Object
+      : id = json['id'],
+        name = json['name'];
+
+  Map&lt;String, dynamic&gt; toJson() {              // Object → JSON Map
+    return {'id': id, 'name': name};
+  }
+}
+
+void main() {
+  String jsonString = '''
+  [
+    {"id": 1, "name": "Alice"},
+    {"id": 2, "name": "Bob"},
+    {"id": 3, "name": "Charlie"}
+  ]
+  ''';
+
+  // JSON String → List ของ Object
+  List&lt;dynamic&gt; jsonList = jsonDecode(jsonString);
+  List&lt;Student&gt; students = jsonList.map((item) =&gt; Student.fromJson(item)).toList();
+
+  for (var student in students) {
+    print("ID: ${student.id}, Name: ${student.name}");
+  }
+
+  // Object → JSON Array
+  String newJsonString = jsonEncode(students.map((e) =&gt; e.toJson()).toList());
+  print("JSON ใหม่: $newJsonString");
+}</code></pre>
+<div class="ok"><b>สรุป:</b> <code>jsonDecode()</code> แปลง String → Map/List · <code>jsonEncode()</code> แปลง Map/List → String · <code>fromJson</code> / <code>toJson</code> คือ method ที่เราเขียนเองใน Model Class</div>
+
+<h2 id="http">9. แพ็กเกจ http เรียก API</h2>
+<p>ใน Flutter มีแพ็กเกจเชื่อมต่อ API บน <b>pub.dev</b> ที่นิยมคือ <code>http</code> (เรียก API ทั่วไป) และ <code>dio</code> (โปรเจกต์ซับซ้อนขึ้น)</p>
+<pre><code># ติดตั้ง (terminal)
+flutter pub add http
+
+# หรือเพิ่มใน pubspec.yaml แล้ว flutter pub get
+dependencies:
+  http: ^1.2.0</code></pre>
+<pre><code>import 'package:http/http.dart' as http;
+import 'dart:convert';
+
+void main() {
+  void fetchUser() async {
+    try {
+      var response = await http.get(Uri.parse('https://dummyjson.com/users/1'));
+      if (response.statusCode == 200) {                 // 200 = สำเร็จ
+        var data = jsonDecode(response.body);           // body เป็น String JSON
+        print('Name: ${data["firstName"]}');
+      } else {
+        print('Failed to fetch data');
+      }
+    } catch (e) {
+      print('Error: $e');                               // เช่น ไม่มีอินเทอร์เน็ต
+    }
+  }
+
+  fetchUser();
+}</code></pre>
+<div class="card"><b>องค์ประกอบ:</b>
+<ul>
+<li><code>async</code> / <code>await</code> — รอผลจากเครือข่ายโดยไม่ค้างหน้าจอ</li>
+<li><code>Uri.parse('url')</code> — แปลง String เป็น Uri</li>
+<li><code>response.statusCode</code> — รหัสผลลัพธ์ (200 = OK) · <code>response.body</code> — ข้อมูลที่ได้ (String)</li>
+<li><code>try / catch</code> — ดักข้อผิดพลาด</li>
+</ul></div>
+
+<h3>แบบใช้ Model Class</h3>
+<pre><code>class User {
+  final int id;
+  final String firstName;
+  final String username;
+  final String email;
+
+  User(this.id, this.firstName, this.username, this.email);
+
+  User.fromJson(Map&lt;String, dynamic&gt; json)
+      : id = json['id'],
+        firstName = json['firstName'],
+        username = json['username'],
+        email = json['email'];
+
+  Map&lt;String, dynamic&gt; toJson() {
+    return {'id': id, 'firstName': firstName, 'username': username, 'email': email};
+  }
+}
+
+// ใช้งาน
+var response = await http.get(Uri.parse('https://dummyjson.com/users/1'));
+if (response.statusCode == 200) {
+  var data = jsonDecode(response.body);
+  User user = User.fromJson(data);
+  print('firstName: ${user.firstName}');
+}</code></pre>
+
+<h2 id="exapi">10. โจทย์: หน้าจอดึงข้อมูลจาก API</h2>
+<div class="card">
+• ดึงข้อมูลจาก <code>https://dummyjson.com/users</code> ด้วย <code>http</code><br>
+• สร้าง Class <code>User</code> เก็บ JSON Array: <code>id, firstName, lastName, username, email</code><br>
+• ใช้ <code>ListView.separated</code> + <code>ListTile</code> แสดง User ทั้งหมด
+</div>
+<div class="tip">💡 ข้อมูลจาก <code>/users</code> เป็น <b>Object ที่มี key <code>"users"</code></b> เป็น Array ข้างใน → ต้องเข้าถึง <code>data['users']</code> ก่อนจึงจะได้ List</div>
+<figure class="fig">
+<svg viewBox="0 0 560 150" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="โครงสร้าง response users">
+<style>.m{fill:var(--text);font:13px ui-monospace,Consolas,monospace}.c{fill:var(--muted);font:12px system-ui,sans-serif}</style>
+<rect x="10" y="8" width="320" height="134" rx="10" fill="var(--card)" stroke="var(--line)" stroke-width="2"/>
+<text class="m" x="24" y="32">{</text>
+<text class="m" x="40" y="54">"users": [</text>
+<text class="m" x="60" y="76">{ "id": 1, "firstName": ... },</text>
+<text class="m" x="60" y="98">{ "id": 2, "firstName": ... }, ...</text>
+<text class="m" x="40" y="120">],  "total": 208 ...</text>
+<text class="m" x="24" y="138">}</text>
+<path d="M340 54H400" stroke="var(--accent)" stroke-width="2" marker-end="url(#a3)"/>
+<defs><marker id="a3" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="var(--accent)"/></marker></defs>
+<text class="c" x="408" y="50">data['users']</text><text class="c" x="408" y="68">= List&lt;dynamic&gt;</text>
+</svg>
+<figcaption>ต้องดึง List ออกมาจาก key "users"</figcaption>
+</figure>
+<details><summary>ดูเฉลย (โค้ดเต็ม)</summary>
+<pre><code>// ---------- model/user_data.dart ----------
+class User {
+  final int id;
+  final String firstName;
+  final String lastName;
+  final String username;
+  final String email;
+
+  User({
+    required this.id,
+    required this.firstName,
+    required this.lastName,
+    required this.username,
+    required this.email,
+  });
+
+  String get fullName =&gt; '$firstName $lastName';
+
+  factory User.fromJson(Map&lt;String, dynamic&gt; json) {
+    return User(
+      id: json['id'],
+      firstName: json['firstName'],
+      lastName: json['lastName'],
+      username: json['username'],
+      email: json['email'],
+    );
+  }
+}
+
+// ---------- list_user_screen.dart ----------
+import 'dart:convert';
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+
+class ListUserScreen extends StatefulWidget {
+  const ListUserScreen({super.key});
+
+  @override
+  State&lt;ListUserScreen&gt; createState() =&gt; _ListUserScreenState();
+}
+
+class _ListUserScreenState extends State&lt;ListUserScreen&gt; {
+  List&lt;User&gt; listUser = [];
+
+  @override
+  void initState() {
+    super.initState();
+    getUser();                                   // โหลดตอนเปิดหน้า
+  }
+
+  Future&lt;void&gt; getUser() async {
+    try {
+      var response = await http.get(Uri.parse('https://dummyjson.com/users'));
+      if (response.statusCode == 200) {
+        var data = jsonDecode(response.body);
+        List&lt;dynamic&gt; jsonList = data['users'];  // ดึง Array จาก key users
+        setState(() {
+          listUser = jsonList.map((item) =&gt; User.fromJson(item)).toList();
+        });
+      }
+    } catch (e) {
+      print('Error : $e');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Call API')),
+      body: ListView.separated(
+        itemCount: listUser.length,
+        separatorBuilder: (BuildContext context, int index) =&gt; const Divider(),
+        itemBuilder: (BuildContext context, int index) {
+          return ListTile(
+            leading: Text('ID ${listUser[index].id}'),
+            title: Text(listUser[index].fullName),
+            subtitle: Text(listUser[index].email),
+          );
+        },
+      ),
+      floatingActionButton: ElevatedButton(
+        onPressed: () {
+          getUser();                             // กดเพื่อโหลดใหม่
+        },
+        child: const Text('refresh'),
+      ),
+    );
+  }
+}</code></pre></details>
+<div class="tip">⚠️ <b>จุดที่ผิดบ่อย:</b> เรียก <code>getUser()</code> ใน <code>initState()</code> (ห้ามทำ <code>initState</code> เป็น async) · ต้อง <code>setState()</code> หลังได้ข้อมูล ไม่งั้น ListView ไม่อัปเดต · endpoint ต้องเป็น <code>/users</code> (ตัวอย่าง "fix api endpoint" ในไฟล์ของอาจารย์แก้จาก <code>/user</code> ที่พิมพ์ผิด)</div>
+
+<h2 id="aqi">11. Assignment: คุณภาพอากาศ (AQI)</h2>
+<div class="card">
+• ดึงข้อมูลจาก <b>aqicn.org</b> (ขอ Token ที่ <code>aqicn.org/data-platform/token</code> กรอก Email + Name → กดยืนยันในอีเมล → ได้ URL ที่มี token ของตัวเอง)<br>
+• แสดงข้อมูล 3 ค่า: <b>AQI, City, Temperature</b> ให้ครบ (ออกแบบหน้าจอเองได้)<br>
+• ทดสอบ URL ผ่าน Postman หรือ Browser ก่อน
+</div>
+<table>
+<tr><th>ค่า</th><th>เข้าถึงจาก response</th></tr>
+<tr><td>AQI</td><td><code>{response}.data.aqi</code></td></tr>
+<tr><td>City</td><td><code>{response}.data.city.name</code></td></tr>
+<tr><td>Temperature</td><td><code>{response}.data.iaqi.t.v</code></td></tr>
+</table>
+<h3>ระดับ AQI (aqicn.org/scale)</h3>
+<table>
+<tr><th>AQI</th><th>ระดับ</th><th>สี</th></tr>
+<tr><td>0 – 50</td><td>Good (ดี)</td><td>เขียว</td></tr>
+<tr><td>51 – 100</td><td>Moderate (ปานกลาง)</td><td>เหลือง</td></tr>
+<tr><td>101 – 150</td><td>Unhealthy for Sensitive Groups</td><td>ส้ม</td></tr>
+<tr><td>151 – 200</td><td>Unhealthy (ไม่ดีต่อสุขภาพ)</td><td>แดง</td></tr>
+<tr><td>201 – 300</td><td>Very Unhealthy</td><td>ม่วง</td></tr>
+<tr><td>301+</td><td>Hazardous (อันตราย)</td><td>น้ำตาลเข้ม</td></tr>
+</table>
+<figure class="fig">
+<svg viewBox="0 0 600 90" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="AQI scale">
+<style>.t{font:600 12px system-ui,sans-serif;text-anchor:middle}.n{fill:var(--muted);font:12px system-ui,sans-serif;text-anchor:middle}</style>
+<rect x="10" y="10" width="95" height="40" fill="#2e9e5b"/><text class="t" x="57" y="35" fill="#fff">Good</text><text class="n" x="57" y="72">0-50</text>
+<rect x="105" y="10" width="95" height="40" fill="#facc15"/><text class="t" x="152" y="35" fill="#000">Moderate</text><text class="n" x="152" y="72">51-100</text>
+<rect x="200" y="10" width="95" height="40" fill="#f97316"/><text class="t" x="247" y="35" fill="#fff">Sensitive</text><text class="n" x="247" y="72">101-150</text>
+<rect x="295" y="10" width="95" height="40" fill="#ef4444"/><text class="t" x="342" y="35" fill="#fff">Unhealthy</text><text class="n" x="342" y="72">151-200</text>
+<rect x="390" y="10" width="100" height="40" fill="#8b5cf6"/><text class="t" x="440" y="35" fill="#fff">Very Unhealthy</text><text class="n" x="440" y="72">201-300</text>
+<rect x="490" y="10" width="100" height="40" fill="#7f1d1d"/><text class="t" x="540" y="35" fill="#fff">Hazardous</text><text class="n" x="540" y="72">301+</text>
+</svg>
+<figcaption>สเกลสี AQI</figcaption>
+</figure>
+<details><summary>ตัวอย่างโค้ด (เขียนตามรูปแบบที่สไลด์ใบ้ไว้)</summary>
+<pre><code>import 'dart:convert';
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+
+class AqiScreen extends StatefulWidget {
+  const AqiScreen({super.key});
+
+  @override
+  State&lt;AqiScreen&gt; createState() =&gt; _AqiScreenState();
+}
+
+class _AqiScreenState extends State&lt;AqiScreen&gt; {
+  int aqi = 0;
+  String city = '-';
+  double temp = 0;
+
+  // ใส่ URL ที่ได้จากหน้าขอ Token (มี token ของตัวเอง)
+  final String url = 'YOUR_AQICN_API_URL_WITH_TOKEN';
+
+  @override
+  void initState() {
+    super.initState();
+    fetchAqi();
+  }
+
+  Future&lt;void&gt; fetchAqi() async {
+    try {
+      var response = await http.get(Uri.parse(url));
+      if (response.statusCode == 200) {
+        var res = jsonDecode(response.body);
+        setState(() {
+          aqi = int.tryParse(res['data']['aqi'].toString()) ?? 0;   // data.aqi
+          city = res['data']['city']['name'];                        // data.city.name
+          temp = (res['data']['iaqi']['t']['v'] as num).toDouble();  // data.iaqi.t.v
+        });
+      }
+    } catch (e) {
+      print('Error: $e');
+    }
+  }
+
+  // เงื่อนไขสีและข้อความตามระดับ AQI
+  Color get aqiColor {
+    if (aqi &lt;= 50) return Colors.green;
+    if (aqi &lt;= 100) return Colors.yellow;
+    if (aqi &lt;= 150) return Colors.orange;
+    if (aqi &lt;= 200) return Colors.red;
+    if (aqi &lt;= 300) return Colors.purple;
+    return Colors.brown;
+  }
+
+  String get aqiText {
+    if (aqi &lt;= 50) return 'Good';
+    if (aqi &lt;= 100) return 'Moderate';
+    if (aqi &lt;= 150) return 'Unhealthy for Sensitive Groups';
+    if (aqi &lt;= 200) return 'Unhealthy';
+    if (aqi &lt;= 300) return 'Very Unhealthy';
+    return 'Hazardous';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Air Quality')),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(city, style: const TextStyle(fontSize: 24)),
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(24),
+              color: aqiColor,
+              child: Text('AQI $aqi', style: const TextStyle(fontSize: 40)),
+            ),
+            Text(aqiText),
+            const SizedBox(height: 12),
+            Text('Temperature: $temp °C', style: const TextStyle(fontSize: 20)),
+          ],
+        ),
+      ),
+    );
+  }
+}</code></pre></details>
+<div class="tip">💡 ที่อยู่ URL ของ aqicn ขึ้นกับ Token/เมืองที่เลือกในอีเมลของแต่ละคน จึงใส่เป็น <code>YOUR_AQICN_API_URL_WITH_TOKEN</code> ไว้ · ห้ามเอา Token ไปโพสต์สาธารณะ</div>
+
+<h2 id="quiz">12. ทวนก่อนสอบ</h2>
+<h3>ปรนัย (กดดูเฉลย)</h3>
+<details><summary>1. validator ของ TextFormField ต้องคืนค่าอะไรเมื่อข้อมูลถูกต้อง?  ก. true  ข. "OK"  ค. null  ง. ""</summary><p><b>ตอบ ค.</b> คืน <code>null</code> = ผ่าน · คืน String = ข้อความ error</p></details>
+<details><summary>2. ข้อใดใช้เลือกได้เพียงตัวเลือกเดียวจากหลายตัว?  ก. Checkbox  ข. Radio  ค. Switch  ง. TextFormField</summary><p><b>ตอบ ข.</b> Radio (ผูกด้วย <code>groupValue</code> เดียวกัน) · Checkbox เลือกได้หลายตัว</p></details>
+<details><summary>3. ตัวแปรชนิดใดที่ใช้เรียก validate() ของ Form?</summary><p><b>ตอบ</b> <code>GlobalKey&lt;FormState&gt;</code> → <code>_formKey.currentState!.validate()</code></p></details>
+<details><summary>4. ต้องการอ่านข้อความในช่องกรอกตอนกดปุ่ม ใช้อะไร?</summary><p><b>ตอบ</b> <code>TextEditingController</code> แล้วอ่านด้วย <code>controller.text</code></p></details>
+<details><summary>5. method ใดของ http ใช้ "สร้างข้อมูลใหม่" และ status ที่คาดหวังคืออะไร?</summary><p><b>ตอบ</b> <code>POST</code> · 201 (Created)</p></details>
+<details><summary>6. JSON Array ที่ decode แล้วเป็นชนิดใดใน Dart?</summary><p><b>ตอบ</b> <code>List&lt;dynamic&gt;</code> (ส่วน JSON Object เป็น <code>Map&lt;String, dynamic&gt;</code>)</p></details>
+<details><summary>7. จาก JSON ของ AQI ค่า temperature อยู่ที่ path ใด?</summary><p><b>ตอบ</b> <code>data.iaqi.t.v</code></p></details>
+<h3>อัตนัย (ตัวอย่างคำตอบ)</h3>
+<details><summary>1. อธิบายหน้าที่ของ Form, TextFormField และ GlobalKey&lt;FormState&gt;</summary><p>Form เป็นตัวจัดการฟอร์มที่ครอบช่องกรอกหลายช่อง · TextFormField คือช่องกรอกข้อความที่มี validator ตรวจสอบค่า · GlobalKey&lt;FormState&gt; ผูกกับ Form เพื่อเรียก <code>validate()</code> ตรวจทุกช่อง และ <code>save()</code> บันทึกค่า</p></details>
+<details><summary>2. API คืออะไร และทำงานอย่างไร</summary><p>API คือชุดกฎ/โปรโตคอลให้ซอฟต์แวร์ต่างระบบสื่อสารและแลกเปลี่ยนข้อมูลกันได้โดยไม่ต้องรู้โครงสร้างภายใน ทำงาน 4 ขั้น: Client ส่ง request → Server ประมวลผลและดึงข้อมูลจาก DB → ส่ง response (JSON/XML) กลับ → Client นำไปแสดงผล เช่นใน ListView</p></details>
+<details><summary>3. อธิบายความแตกต่างของ jsonDecode, jsonEncode, fromJson และ toJson</summary><p><code>jsonDecode</code> แปลง JSON String → Map/List · <code>jsonEncode</code> แปลง Map/List → JSON String · <code>fromJson</code> (เขียนเองใน Model) แปลง Map → Object · <code>toJson</code> แปลง Object → Map</p></details>
+<details><summary>4. เขียนโค้ดเรียก GET จาก https://dummyjson.com/users/1 แล้วพิมพ์ firstName</summary>
+<pre><code>var response = await http.get(Uri.parse('https://dummyjson.com/users/1'));
+if (response.statusCode == 200) {
+  var data = jsonDecode(response.body);
+  print(data['firstName']);
+}</code></pre></details>
+<details><summary>5. ทำไมต้องใช้ setState() หลังได้ข้อมูลจาก API</summary><p>เพราะการเรียก API เป็น async ข้อมูลมาถึงทีหลังการ build ครั้งแรก ต้อง <code>setState()</code> เพื่อให้ Flutter build UI ใหม่และแสดงข้อมูลที่เพิ่งได้</p></details>
+</main>
+<script>
+(function(){
+  var esc=function(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')};
+  var kw='class|extends|const|final|return|void|import|required|int|double|String|bool|super|static|true|false|null|this|var|late|new|async|await|if|else|try|catch|dynamic|factory|Future|get';
+  var re=new RegExp('(\\/\\/[^\\n]*|#[^\\n]*)|(\'(?:\\\\.|[^\'\\\\\\n])*\'|"(?:\\\\.|[^"\\\\\\n])*")|(@override)|\\b('+kw+')\\b|\\b(\\d+(?:\\.\\d+)?)\\b','g');
+  document.querySelectorAll('pre code').forEach(function(el){
+    var src=el.textContent,out='',last=0,m;
+    re.lastIndex=0;
+    while((m=re.exec(src))){
+      out+=esc(src.slice(last,m.index));
+      var cls=m[1]?'c':m[2]?'s':m[3]?'k':m[4]?'k':'n';
+      out+='<span class="'+cls+'">'+esc(m[0])+'</span>';
+      last=m.index+m[0].length;
+    }
+    out+=esc(src.slice(last));
+    el.innerHTML=out;
+  });
+})();
+</script>
+</body>
+</html>

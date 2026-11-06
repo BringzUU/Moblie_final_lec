@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="th"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Chapter 5 – REST API &amp; Firebase | Flutter Final</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📱</text></svg>">
+<link rel="stylesheet" href="assets/style.css"></head>
+<body>
+<header><div class="wrap"><p>สรุปสอบบรรยาย · Flutter Mobile</p><h1>Chapter 5 – การเชื่อมต่อ API (2) &amp; Firebase</h1><p>RESTful API · FastAPI / json-server · package http · Cloud Firestore</p></div></header>
+<main>
+<nav class="toc"><a href="#rest">1. REST API</a><a href="#backend">2. Backend จำลอง</a><a href="#emu">3. Emulator</a><a href="#http">4. Flutter http</a><a href="#ui">5. Snackbar/Dialog</a><a href="#fb">6. Firebase</a><a href="#fscode">7. Firestore CRUD</a><a href="#quiz">8. ข้อสอบ</a></nav>
+
+<section id="rest"><h2>1. RESTful API กับ HTTP Method</h2>
+<p>REST API คือการสื่อสารระหว่างแอป (client) กับ backend ผ่าน HTTP โดยแต่ละ method แทนการกระทำต่อข้อมูล (CRUD)</p>
+<table><tr><th>HTTP Method</th><th>CRUD</th><th>ใช้ทำอะไร</th><th>Status ที่สำเร็จ</th></tr>
+<tr><td><code>GET</code></td><td>Read</td><td>อ่าน/ดึงข้อมูล</td><td>200</td></tr>
+<tr><td><code>POST</code></td><td>Create</td><td>สร้างข้อมูลใหม่</td><td>201</td></tr>
+<tr><td><code>PUT</code></td><td>Update</td><td>แก้ไขข้อมูล (ระบุ id ใน URL)</td><td>200</td></tr>
+<tr><td><code>DELETE</code></td><td>Delete</td><td>ลบข้อมูล (ระบุ id ใน URL)</td><td>200</td></tr></table>
+<figure class="fig"><svg viewBox="0 0 640 170" role="img" aria-label="Flutter App ส่ง request ไป REST API แล้วต่อ Database">
+<defs><marker id="a" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0L8,4L0,8z" fill="#2563eb"/></marker></defs>
+<g font-family="sans-serif" font-size="14" text-anchor="middle">
+<rect x="10" y="50" width="140" height="70" rx="10" fill="#dbeafe" stroke="#2563eb"/><text x="80" y="82" fill="#1e3a8a">Flutter App</text><text x="80" y="102" fill="#1e3a8a" font-size="12">package http</text>
+<rect x="250" y="50" width="140" height="70" rx="10" fill="#ede9fe" stroke="#7c3aed"/><text x="320" y="82" fill="#4c1d95">REST API</text><text x="320" y="102" fill="#4c1d95" font-size="12">FastAPI / json-server</text>
+<rect x="490" y="50" width="140" height="70" rx="10" fill="#dcfce7" stroke="#16a34a"/><text x="560" y="82" fill="#14532d">Database</text><text x="560" y="102" fill="#14532d" font-size="12">MySQL / db.json</text>
+<line x1="150" y1="75" x2="248" y2="75" stroke="#2563eb" stroke-width="2" marker-end="url(#a)"/><text x="200" y="68" fill="#2563eb" font-size="12">Request</text>
+<line x1="248" y1="98" x2="152" y2="98" stroke="#2563eb" stroke-width="2" marker-end="url(#a)"/><text x="200" y="116" fill="#2563eb" font-size="12">JSON</text>
+<line x1="390" y1="85" x2="488" y2="85" stroke="#2563eb" stroke-width="2" marker-end="url(#a)"/></g></svg>
+<figcaption>ภาพรวมการทำงาน (วาดใหม่เพื่อสรุป)</figcaption></figure></section>
+
+<section id="backend"><h2>2. Backend ที่ใช้ในวิชา</h2>
+<h3>FastAPI (Python)</h3>
+<p>ออกแบบให้พัฒนาง่าย สร้าง API ได้เร็ว เข้าใจง่าย และความเร็วใช้งานเทียบเท่า NodeJS และ Go รันผ่าน Docker (<code>fast-api-mysql-docker</code>)</p>
+<pre><code>docker compose up -d          # หรือ docker compose up --build
+# หน้าจัดการ DB (phpMyAdmin): http://localhost:8040
+# Username: admin   Password: admin</code></pre>
+<h3>json-server (กรณีใช้ Docker ไม่ได้)</h3>
+<p>จำลอง REST API จากไฟล์ JSON ต้องมี Node.js</p>
+<pre><code>node -v                    # เช็คว่าติดตั้ง Node แล้วหรือยัง
+npm i                      # ติดตั้ง lib ในโฟลเดอร์ json-server-rest-api
+npx json-server db.json    # รัน (port 3000)
+# ทดสอบ: GET http://localhost:3000/products</code></pre>
+<div class="tip"><b>เครื่องมือทดสอบ API:</b> <b>Postman</b> – ทดสอบ GET, POST, PUT, DELETE ก่อนเขียนโค้ด Flutter</div></section>
+
+<section id="emu"><h2>3. เรียก API ใน Local ผ่าน Emulator</h2>
+<figure class="fig"><svg viewBox="0 0 640 150" role="img" aria-label="Android emulator ใช้ 10.0.2.2 แทน localhost">
+<g font-family="sans-serif" font-size="14" text-anchor="middle">
+<rect x="20" y="30" width="250" height="90" rx="10" fill="#dbeafe" stroke="#2563eb"/><text x="145" y="60" fill="#1e3a8a">Android Emulator</text><text x="145" y="88" fill="#1e3a8a" font-size="13">localhost = ตัวเครื่อง emulator เอง ✗</text>
+<rect x="370" y="30" width="250" height="90" rx="10" fill="#dcfce7" stroke="#16a34a"/><text x="495" y="60" fill="#14532d">คอมพิวเตอร์ (Host)</text><text x="495" y="88" fill="#14532d" font-size="13">API รันที่ port 8001 / 3000</text>
+<line x1="272" y1="75" x2="368" y2="75" stroke="#2563eb" stroke-width="2"/><text x="320" y="66" fill="#2563eb" font-size="13">10.0.2.2</text></g></svg></figure>
+<table><tr><th>Run บน</th><th>URL ที่ใช้</th></tr>
+<tr><td>Android Emulator</td><td><code>http://10.0.2.2:{port}</code> เช่น <code>http://10.0.2.2:8001/products</code></td></tr>
+<tr><td>Chrome (Web)</td><td><code>http://localhost:{port}</code> ได้ปกติ เพราะ API ตั้ง CORS Allow All ไว้แล้ว</td></tr></table></section>
+
+<section id="http"><h2>4. Flutter HTTP: GET / POST / PUT / DELETE</h2>
+<p>ใช้ <code>package:http</code> คู่กับ <code>dart:convert</code> (<code>jsonDecode</code> / <code>jsonEncode</code>) ทุกฟังก์ชันเป็น <code>async</code> + <code>await</code> และครอบ <code>try/catch</code></p>
+<h3>GET (Read)</h3>
+<pre><code>Future&lt;void&gt; fetchData() async {
+  try {
+    var response = await http.get(Uri.parse('http://localhost:3000/products'));
+    if (response.statusCode == 200) {
+      List&lt;dynamic&gt; jsonList = jsonDecode(response.body);
+      // code something...
+    } else {
+      throw Exception("Failed to load products");
+    }
+  } catch (e) { print(e); }
+}</code></pre>
+<h3>POST (Create) – ต้องมี header + body เป็น JSON</h3>
+<pre><code>Future&lt;void&gt; createProduct() async {
+  try {
+    var response = await http.post(
+      Uri.parse("http://localhost:3000/products"),
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({
+        "name": "iPhone 5s",
+        "description": "Apple smartphone",
+        "price": 21999.00
+      }));
+    if (response.statusCode == 201) {   // สร้างสำเร็จ = 201
+      // code something...
+    } else { throw Exception("Failed to create product"); }
+  } catch (e) { print(e); }
+}</code></pre>
+<h3>PUT (Update) – ระบุ id ท้าย URL</h3>
+<pre><code>Future&lt;void&gt; updateProduct({dynamic idUpdate = "44b7"}) async {
+  try {
+    var response = await http.put(
+      Uri.parse("http://localhost:3000/products/$idUpdate"),
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({
+        "name": "iPhone 5 plus",
+        "description": "Apple smartphone",
+        "price": 34900.00
+      }));
+    if (response.statusCode == 200) { /* code something... */ }
+    else { throw Exception("Failed to update product"); }
+  } catch (e) { print(e); }
+}</code></pre>
+<h3>DELETE</h3>
+<pre><code>Future&lt;void&gt; deleteProduct({dynamic idDelete = "44b7"}) async {
+  try {
+    var response = await http
+        .delete(Uri.parse("http://localhost:3000/products/$idDelete"));
+    if (response.statusCode == 200) { /* code something... */ }
+    else { throw Exception("Failed to delete products"); }
+  } catch (e) { print(e); }
+}</code></pre>
+<div class="warn"><b>จุดที่ออกข้อสอบบ่อย:</b> POST สำเร็จ = <b>201</b> (ไม่ใช่ 200) · POST/PUT ต้องใส่ <code>Content-Type: application/json</code> และ <code>jsonEncode</code> body · GET ใช้ <code>jsonDecode(response.body)</code></div></section>
+
+<section id="ui"><h2>5. Snackbar และ Dialog</h2>
+<p>ใช้แจ้งผล: เพิ่มข้อมูลสำเร็จ → <b>Snackbar</b> · ก่อนลบ → <b>Dialog</b> ยืนยัน</p>
+<pre><code>// SnackBar
+ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+  content: Text('Success!'),
+  backgroundColor: Colors.green,
+));
+
+// AlertDialog (ยืนยันก่อนลบ)
+showDialog&lt;String&gt;(
+  context: context,
+  builder: (BuildContext context) =&gt; AlertDialog(
+    title: const Text('AlertDialog Title'),
+    content: const Text('AlertDialog description'),
+    actions: &lt;Widget&gt;[
+      TextButton(onPressed: () =&gt; Navigator.pop(context, 'Cancel'),
+                 child: const Text('Cancel')),
+      TextButton(onPressed: () =&gt; Navigator.pop(context, 'OK'),
+                 child: const Text('OK')),
+    ],
+  ),
+);</code></pre>
+<h3>แบบฝึกหัดท้ายบท</h3>
+<p>แอปจัดการสินค้าผ่าน REST API: (1) หน้า List สินค้า (2) หน้า Form สร้าง/แก้ไข (3) ปุ่มลบ (4) Snackbar เมื่อสำเร็จ และ Dialog ยืนยันก่อนลบ</p></section>
+
+<section id="fb"><h2>6. Firebase</h2>
+<p><b>Firebase</b> = แพลตฟอร์มพัฒนาแอปครบวงจร (Mobile &amp; Web) สร้างโดย Firebase Inc. ปัจจุบันอยู่ภายใต้ Google ให้บริการแบบ <b>BaaS (Backend as a Service)</b> คือไม่ต้องสร้างเซิร์ฟเวอร์/เขียน backend เอง</p>
+<p><b>Cloud Firestore</b> = ฐานข้อมูล <b>NoSQL</b> บน Cloud อ่าน/เขียนแบบ <b>เรียลไทม์</b> และซิงค์ข้อมูลระหว่างอุปกรณ์ เหมาะกับข้อมูล JSON-based</p>
+<figure class="fig"><svg viewBox="0 0 640 140" role="img" aria-label="โครงสร้าง Firestore: Collection มี Document มี Field">
+<g font-family="sans-serif" font-size="14" text-anchor="middle">
+<rect x="10" y="30" width="170" height="80" rx="10" fill="#fef3c7" stroke="#d97706"/><text x="95" y="62" fill="#78350f">Collection</text><text x="95" y="86" fill="#78350f" font-size="12">products</text>
+<rect x="235" y="30" width="170" height="80" rx="10" fill="#dbeafe" stroke="#2563eb"/><text x="320" y="62" fill="#1e3a8a">Document</text><text x="320" y="86" fill="#1e3a8a" font-size="12">id อัตโนมัติ</text>
+<rect x="460" y="30" width="170" height="80" rx="10" fill="#dcfce7" stroke="#16a34a"/><text x="545" y="62" fill="#14532d">Fields</text><text x="545" y="86" fill="#14532d" font-size="12">name, description, price</text>
+<text x="207" y="75" fill="#64748b" font-size="22">→</text><text x="432" y="75" fill="#64748b" font-size="22">→</text></g></svg>
+<figcaption>Collection → Document → Field</figcaption></figure>
+<h3>ขั้นตอน Set up</h3>
+<ol><li>สร้างโปรเจกต์ที่ firebase.google.com → ตั้งชื่อ → ตั้งค่า Analytics</li>
+<li>เปิดใช้ Firestore Database → สร้าง Collection / Document ตัวอย่าง → ตั้ง Rules ให้ <b>allow read, write</b> (สำหรับทดสอบ)</li>
+<li>เลือก Add app → <b>Android</b> → copy package id จาก <code>android/app/build.gradle</code></li>
+<li>เพิ่ม plugin <code>com.google.gms.google-services</code> ใน <code>android/app/build.gradle</code></li>
+<li>ติดตั้ง CLI และ config ตามคำสั่งด้านล่าง</li></ol>
+<pre><code>npm i -g firebase-tools                      # Firebase CLI (ต้องมี Node)
+firebase login                               # ล็อกอิน
+firebase projects:list                       # ดูโปรเจกต์ทั้งหมด
+dart pub global activate flutterfire_cli     # ติดตั้ง flutterfire_cli
+flutterfire -v                               # เช็คว่าใช้ได้ (ถ้าได้ ข้ามการตั้ง PATH)
+flutterfire configure --platforms=android,ios,web   # เลือกโปรเจกต์ที่จะใช้
+flutter pub add cloud_firestore
+flutter pub add firebase_core</code></pre>
+<pre><code>// android/app/build.gradle
+plugins {
+    id "com.android.application"
+    id "kotlin-android"
+    id "dev.flutter.flutter-gradle-plugin"
+    id "com.google.gms.google-services"   // เพิ่ม plugin นี้
+}</code></pre>
+<h3>ปัญหา PATH ของ flutterfire</h3>
+<table><tr><th>OS</th><th>วิธีแก้</th></tr>
+<tr><td>Windows</td><td>เพิ่ม <code>C:\Users\*username*\AppData\Local\Pub\Cache\bin</code> ใน System Environment (Path → Edit → New) แล้วปิด/เปิด Terminal ใหม่</td></tr>
+<tr><td>macOS</td><td><code>export PATH="$PATH":"$HOME/.pub-cache/bin"</code></td></tr></table>
+<pre><code>// main.dart – ต้อง initialize Firebase ก่อน runApp
+import 'firebase_options.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  runApp(const MyApp());
+}</code></pre></section>
+
+<section id="fscode"><h2>7. Firestore CRUD ใน Flutter</h2>
+<h3>Read (Stream – เรียลไทม์)</h3>
+<pre><code>final CollectionReference products =
+    FirebaseFirestore.instance.collection('products');
+
+@override
+Widget build(BuildContext context) {
+  return Scaffold(
+    body: StreamBuilder&lt;QuerySnapshot&gt;(
+      stream: products.snapshots(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) return const CircularProgressIndicator();
+        final data = snapshot.data!.docs;
+        return ListView.separated(
+          separatorBuilder: (context, index) =&gt; const Divider(),
+          itemCount: data.length,
+          itemBuilder: (context, index) {
+            final product = data[index];
+            String productId = product.id;   // ID ของ document
+            return ListTile(
+              leading: Text(productId),
+              title: Text(product['name']),
+              subtitle: Text(product['description']),
+            );
+          },
+        );
+      },
+    ),
+  );
+}</code></pre>
+<h3>Create / Update / Delete</h3>
+<pre><code>// CREATE
+Future&lt;void&gt; createProduct(String name, String description, double price) async {
+  await products.add({'name': name, 'description': description, 'price': price});
+}
+// UPDATE
+Future&lt;void&gt; updateProduct(String docId, String name, String description, double price) async {
+  await products.doc(docId).update({'name': name, 'description': description, 'price': price});
+}
+// DELETE
+Future&lt;void&gt; deleteProduct(String docId) async {
+  await products.doc(docId).delete();
+}</code></pre>
+<table><tr><th>REST API (http)</th><th>Firestore</th></tr>
+<tr><td>GET</td><td><code>products.snapshots()</code> + StreamBuilder</td></tr>
+<tr><td>POST</td><td><code>products.add({...})</code></td></tr>
+<tr><td>PUT</td><td><code>products.doc(id).update({...})</code></td></tr>
+<tr><td>DELETE</td><td><code>products.doc(id).delete()</code></td></tr></table></section>
+
+<section id="quiz"><h2>8. ข้อสอบจำลอง (กดดูเฉลย)</h2>
+<details><summary>1) HTTP method ใดใช้สร้างข้อมูลใหม่ และ status code ที่สำเร็จคืออะไร?</summary><p>POST, 201</p></details>
+<details><summary>2) Android Emulator เรียก API บนเครื่องตัวเองต้องใช้ host อะไร ทำไม?</summary><p><code>10.0.2.2</code> เพราะ <code>localhost</code> ใน emulator หมายถึงตัว emulator เอง ไม่ใช่คอมพิวเตอร์ที่รัน API</p></details>
+<details><summary>3) Firebase เป็นบริการประเภทใด?</summary><p>BaaS (Backend as a Service) ไม่ต้องสร้างเซิร์ฟเวอร์เอง</p></details>
+<details><summary>4) Cloud Firestore เป็นฐานข้อมูลแบบใด และเหมาะกับงานอะไร?</summary><p>NoSQL บน Cloud เหมาะกับข้อมูลเรียลไทม์และข้อมูลแบบ JSON</p></details>
+<details><summary>5) คำสั่งใดตั้งค่า Firebase ให้โปรเจกต์ Flutter?</summary><p><code>flutterfire configure</code> (ติดตั้งผ่าน <code>dart pub global activate flutterfire_cli</code>)</p></details>
+<details><summary>6) ต้องทำอะไรใน main() ก่อนใช้ Firebase?</summary><p><code>WidgetsFlutterBinding.ensureInitialized()</code> แล้ว <code>await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform)</code></p></details>
+<details><summary>7) Widget ใดอ่านข้อมูล Firestore แบบเรียลไทม์? ดึง id ของ document อย่างไร?</summary><p><code>StreamBuilder</code> กับ <code>collection.snapshots()</code> · ใช้ <code>doc.id</code></p></details>
+<details><summary>8) (อัตนัย) อธิบายขั้นตอนทำหน้าลบสินค้าให้ปลอดภัย</summary><p>กดปุ่มลบ → แสดง AlertDialog ยืนยัน → ถ้ากด OK เรียก <code>http.delete(.../products/$id)</code> (หรือ <code>doc(id).delete()</code>) → ตรวจ statusCode == 200 → แสดง SnackBar สำเร็จ → โหลดรายการใหม่</p></details>
+</section>
+</main>
+<footer>Chapter 5 · <a href="chapter6.html">Chapter 6 →</a> · <a href="index.html">หน้าแรก</a></footer>
+</body></html>
