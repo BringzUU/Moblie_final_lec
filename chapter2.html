@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>บทที่ 2 Widgets — สรุปสอบบรรยาย Flutter Mobile</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top"><a href="index.html">← หน้าแรก</a><strong>บทที่ 2 — Widgets</strong></header>
+<main>
+<h1>บทที่ 2: Widgets</h1>
+<p style="color:var(--muted)">Widget พื้นฐาน, Layout, Button, Image, ListView, Stateless / Stateful และ Lifecycle</p>
+
+<nav class="toc">
+<a href="#what">Widget คืออะไร</a>
+<a href="#tree">Widget Tree</a>
+<a href="#app">MaterialApp</a>
+<a href="#scaffold">Scaffold</a>
+<a href="#text">Text</a>
+<a href="#container">Container / SizedBox</a>
+<a href="#rowcol">Row / Column</a>
+<a href="#expanded">Expanded</a>
+<a href="#stack">Stack / Positioned</a>
+<a href="#button">Button</a>
+<a href="#image">Image</a>
+<a href="#listview">ListView</a>
+<a href="#state">Stateless / Stateful</a>
+<a href="#lifecycle">Lifecycle</a>
+<a href="#ex">โจทย์ Exercise</a>
+<a href="#quiz">ทวนก่อนสอบ</a>
+</nav>
+
+<h2 id="what">1. Widget คืออะไร</h2>
+<div class="card">
+<b>Widget</b> คือองค์ประกอบพื้นฐาน (building block) ของหน้าจอ/UI ทั้งหมดใน Flutter — ข้อความ ปุ่ม รูปภาพ ไอคอน หรือแม้แต่โครงสร้างหน้า (Layout) ก็เป็น Widget ทั้งหมด
+</div>
+<table>
+<tr><th>กลุ่ม Widget</th><th>หน้าที่</th><th>ตัวอย่าง</th></tr>
+<tr><td>Scaffold</td><td>โครงสร้างหลักของหน้าจอ</td><td><code>Scaffold</code>, <code>AppBar</code></td></tr>
+<tr><td>Text</td><td>แสดงข้อความ</td><td><code>Text</code></td></tr>
+<tr><td>Layout</td><td>จัดเรียงตำแหน่ง</td><td><code>Row</code>, <code>Column</code>, <code>Container</code>, <code>Stack</code></td></tr>
+<tr><td>Button</td><td>โต้ตอบกับผู้ใช้</td><td><code>ElevatedButton</code>, <code>TextButton</code></td></tr>
+<tr><td>Image</td><td>แสดงภาพ</td><td><code>Image.network</code>, <code>Image.asset</code></td></tr>
+</table>
+
+<h2 id="tree">2. Widget Tree</h2>
+<p>การนำ Widget มาซ้อนกันเป็นแผนผังต้นไม้ Widget ที่บรรจุ Widget อื่นเรียกว่า <b>Parent</b> ส่วน Widget ที่อยู่ข้างในเรียกว่า <b>Child</b></p>
+<figure class="fig">
+<svg viewBox="0 0 560 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Widget tree">
+<style>.b{fill:var(--card);stroke:var(--accent);stroke-width:2}.t{fill:var(--text);font:600 14px system-ui,sans-serif;text-anchor:middle}.l{stroke:var(--muted);stroke-width:1.5;fill:none}.s{fill:var(--muted);font:12px system-ui,sans-serif;text-anchor:middle}</style>
+<rect class="b" x="205" y="10" width="150" height="38" rx="8"/><text class="t" x="280" y="34">MaterialApp</text>
+<path class="l" d="M280 48V70"/>
+<rect class="b" x="205" y="70" width="150" height="38" rx="8"/><text class="t" x="280" y="94">Scaffold</text>
+<path class="l" d="M280 108V128M280 128H130M280 128H430M130 128V150M430 128V150"/>
+<rect class="b" x="55" y="150" width="150" height="38" rx="8"/><text class="t" x="130" y="174">AppBar</text>
+<rect class="b" x="355" y="150" width="150" height="38" rx="8"/><text class="t" x="430" y="174">Center (body)</text>
+<path class="l" d="M130 188V210M430 188V210"/>
+<rect class="b" x="55" y="210" width="150" height="38" rx="8"/><text class="t" x="130" y="234">Text (title)</text>
+<rect class="b" x="355" y="210" width="150" height="38" rx="8"/><text class="t" x="430" y="234">Text</text>
+<text class="s" x="280" y="282">บน = Parent  ·  ล่าง = Child</text>
+</svg>
+<figcaption>Widget Tree ของแอปอย่างง่าย</figcaption>
+</figure>
+
+<h2 id="app">3. MaterialApp</h2>
+<p>Widget ระดับสูงสุดสำหรับสร้างแอปที่ใช้ <b>Material Design</b> (แนวทางออกแบบของ Google) เป็นจุดเริ่มต้นของแอป</p>
+<div class="card"><b>หน้าที่ของ MaterialApp</b>
+<ol>
+<li>เป็นโครงสร้างพื้นฐาน/จุดเริ่มต้นของแอป Material Design</li>
+<li>กำหนดธีม — <code>ThemeData</code> เช่น สี ตัวอักษร</li>
+<li>จัดการเส้นทาง (Routing) — กำหนด routes และการนำทาง</li>
+<li>กำหนดภาษาและทิศทางข้อความ — <code>locale</code>, <code>textDirection</code></li>
+</ol></div>
+<pre><code>@override
+Widget build(BuildContext context) {
+  return MaterialApp(
+    title: 'Flutter Demo',
+    debugShowCheckedModeBanner: false,   // ซ่อนป้าย DEBUG
+    theme: ThemeData(useMaterial3: true, primarySwatch: Colors.blue),
+    home: const HomeScreenApp(),         // หน้าแรกของแอป
+  );
+}</code></pre>
+
+<h2 id="scaffold">4. Scaffold</h2>
+<p>โครงสร้างพื้นฐานของหน้าจอ ช่วยสร้าง UI ได้ง่าย รองรับ <code>AppBar</code>, <code>Drawer</code>, <code>FloatingActionButton</code>, <code>BottomNavigationBar</code> และ <code>body</code></p>
+<figure class="fig">
+<svg viewBox="0 0 260 340" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Scaffold layout">
+<style>.p{fill:var(--card);stroke:var(--muted);stroke-width:2}.x{fill:var(--text);font:600 14px system-ui,sans-serif;text-anchor:middle}</style>
+<rect class="p" x="40" y="10" width="180" height="320" rx="18"/>
+<rect x="40" y="10" width="180" height="46" rx="18" fill="#0b6bcb"/><rect x="40" y="36" width="180" height="20" fill="#0b6bcb"/>
+<text x="130" y="39" text-anchor="middle" fill="#fff" font-family="system-ui,sans-serif" font-weight="600" font-size="14">appBar</text>
+<text class="x" x="130" y="180">body</text>
+<rect x="165" y="240" width="40" height="40" rx="12" fill="#e0a100"/><text x="185" y="265" text-anchor="middle" fill="#000" font-family="system-ui,sans-serif" font-size="20">+</text>
+<text class="x" x="130" y="228" font-size="11" style="font-size:11px;fill:var(--muted)">floatingActionButton</text>
+<rect x="40" y="290" width="180" height="40" rx="18" fill="#2e9e5b"/><rect x="40" y="290" width="180" height="20" fill="#2e9e5b"/>
+<text x="130" y="316" text-anchor="middle" fill="#fff" font-family="system-ui,sans-serif" font-weight="600" font-size="12">bottomNavigationBar</text>
+</svg>
+<figcaption>ส่วนประกอบของ Scaffold</figcaption>
+</figure>
+<pre><code>return Scaffold(
+  appBar: AppBar(title: const Text('My App')),
+  body: const Center(child: Text('Hello, World!')),
+);</code></pre>
+
+<h2 id="text">5. Text Widget</h2>
+<p>แสดงข้อความบนหน้าจอ กำหนดสี ขนาด ฟอนต์ การจัดตำแหน่ง ได้ผ่าน <code>style: TextStyle(...)</code></p>
+<pre><code>return const Scaffold(
+  body: Center(
+    child: Text(
+      'Hello, Flutter',
+      style: TextStyle(fontSize: 24),
+    ),
+  ),
+);</code></pre>
+
+<h2 id="container">6. Container และ SizedBox</h2>
+<h3>Container</h3>
+<p>Widget อเนกประสงค์ ใช้จัดวาง ตกแต่ง หรือห่อหุ้ม Widget อื่น กำหนดขนาด สีพื้นหลัง ขอบ มุมโค้ง และการจัดตำแหน่งภายในได้หลากหลาย</p>
+<pre><code>Container(
+  width: 100,
+  height: 100,
+  color: Colors.red,
+)</code></pre>
+<h3>SizedBox</h3>
+<p>กำหนดขนาด (<code>width</code>, <code>height</code>) ของพื้นที่ หรือใช้สร้าง<b>ช่องว่าง</b>ระหว่าง Widget</p>
+<ol>
+<li>กำหนดขนาดที่แน่นอนให้ Widget</li>
+<li>สร้างพื้นที่ว่าง (space) ระหว่าง Widget</li>
+<li>ใช้เป็นตัวปรับระยะ (Spacer) ใน Layout</li>
+</ol>
+<div class="tip">💡 <b>Container vs SizedBox:</b> SizedBox คล้าย Container แต่เป็น "กล่องเปล่า ๆ" ที่มีไว้กำหนดขนาด/ช่องว่างเท่านั้น (ไม่มีสี/ขอบ/การตกแต่ง) ถ้าต้องการแค่เว้นระยะให้ใช้ SizedBox</div>
+<pre><code>Row(children: [
+  Container(width: 50, height: 50, color: Colors.red),
+  const SizedBox(width: 20),              // เว้นระยะแนวนอน 20
+  Container(width: 50, height: 50, color: Colors.blue),
+])</code></pre>
+
+<h2 id="rowcol">7. Row และ Column</h2>
+<table>
+<tr><th></th><th>Row</th><th>Column</th></tr>
+<tr><td>ทิศทาง</td><td>แนวนอน (Horizontal) ซ้าย → ขวา</td><td>แนวตั้ง (Vertical) บน → ล่าง</td></tr>
+<tr><td>แกนหลัก (main axis)</td><td>แนวนอน</td><td>แนวตั้ง</td></tr>
+<tr><td>แกนรอง (cross axis)</td><td>แนวตั้ง</td><td>แนวนอน</td></tr>
+<tr><td>รับ child</td><td colspan="2"><code>children: [ ... ]</code> (เป็น List) ใช้คู่กับ <code>mainAxisAlignment</code> และ <code>crossAxisAlignment</code></td></tr>
+</table>
+<pre><code>Row(
+  mainAxisAlignment: MainAxisAlignment.center,
+  children: [
+    Container(height: 100, width: 100, color: Colors.blue),
+    Container(height: 100, width: 100, color: Colors.red),
+  ],
+)
+
+Column(
+  mainAxisAlignment: MainAxisAlignment.center,
+  children: [
+    Container(height: 100, width: 100, color: Colors.blue),
+    Container(height: 100, width: 100, color: Colors.red),
+  ],
+)</code></pre>
+
+<h3>Axis Alignment</h3>
+<figure class="fig">
+<svg viewBox="0 0 600 330" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="MainAxisAlignment ของ Row">
+<style>.f{fill:none;stroke:var(--muted);stroke-width:1.5;stroke-dasharray:5 4}.lb{fill:var(--text);font:600 13px system-ui,sans-serif}.bx{stroke:none}</style>
+<g transform="translate(10,0)">
+<text class="lb" x="0" y="14">start</text><rect class="f" x="0" y="20" width="580" height="40"/>
+<rect class="bx" x="0" y="25" width="30" height="30" fill="#ef4444"/><rect class="bx" x="35" y="25" width="30" height="30" fill="#2e9e5b"/><rect class="bx" x="70" y="25" width="30" height="30" fill="#0b6bcb"/>
+<text class="lb" x="0" y="84">end</text><rect class="f" x="0" y="90" width="580" height="40"/>
+<rect class="bx" x="480" y="95" width="30" height="30" fill="#ef4444"/><rect class="bx" x="515" y="95" width="30" height="30" fill="#2e9e5b"/><rect class="bx" x="550" y="95" width="30" height="30" fill="#0b6bcb"/>
+<text class="lb" x="0" y="154">center</text><rect class="f" x="0" y="160" width="580" height="40"/>
+<rect class="bx" x="240" y="165" width="30" height="30" fill="#ef4444"/><rect class="bx" x="275" y="165" width="30" height="30" fill="#2e9e5b"/><rect class="bx" x="310" y="165" width="30" height="30" fill="#0b6bcb"/>
+<text class="lb" x="0" y="224">spaceBetween</text><rect class="f" x="0" y="230" width="580" height="40"/>
+<rect class="bx" x="0" y="235" width="30" height="30" fill="#ef4444"/><rect class="bx" x="275" y="235" width="30" height="30" fill="#2e9e5b"/><rect class="bx" x="550" y="235" width="30" height="30" fill="#0b6bcb"/>
+<text class="lb" x="0" y="294">spaceAround / spaceEvenly</text><rect class="f" x="0" y="300" width="580" height="28"/>
+<rect class="bx" x="80" y="301" width="26" height="26" fill="#ef4444"/><rect class="bx" x="277" y="301" width="26" height="26" fill="#2e9e5b"/><rect class="bx" x="474" y="301" width="26" height="26" fill="#0b6bcb"/>
+</g>
+</svg>
+<figcaption>mainAxisAlignment ใน Row (Column ใช้หลักเดียวกันแต่เป็นแนวตั้ง)</figcaption>
+</figure>
+<table>
+<tr><th>ค่า</th><th>ความหมาย</th></tr>
+<tr><td><code>start</code></td><td>ชิดต้นแกน</td></tr>
+<tr><td><code>end</code></td><td>ชิดท้ายแกน</td></tr>
+<tr><td><code>center</code></td><td>กึ่งกลาง</td></tr>
+<tr><td><code>spaceBetween</code></td><td>ตัวแรก/ตัวสุดท้ายชิดขอบ ช่องว่างเท่ากันระหว่างตัว</td></tr>
+<tr><td><code>spaceAround</code></td><td>ช่องว่างรอบแต่ละตัวเท่ากัน (ขอบเป็นครึ่งหนึ่ง)</td></tr>
+<tr><td><code>spaceEvenly</code></td><td>ช่องว่างทุกช่องเท่ากันหมด รวมขอบ</td></tr>
+</table>
+<p><code>crossAxisAlignment</code> ใช้ค่า <code>start</code>, <code>end</code>, <code>center</code>, <code>stretch</code>, <code>baseline</code> จัดตำแหน่งตามแกนรอง</p>
+
+<div class="tip"><b>ข้อจำกัดของ Row / Column</b>
+<ul>
+<li>ถ้า Widget มากเกินขอบจอ (แนวนอนหรือแนวตั้ง) ต้องห่อด้วย <code>SingleChildScrollView</code> พร้อม <code>scrollDirection: Axis.horizontal</code> หรือ <code>Axis.vertical</code></li>
+<li>ลูกของ Row/Column ขยายพื้นที่เองไม่ได้ ต้องใช้ <code>Expanded</code> หรือ <code>Flexible</code> ช่วย</li>
+</ul></div>
+
+<h2 id="expanded">8. Expanded</h2>
+<p>ใช้ภายใน <code>Row</code>/<code>Column</code> เพื่อขยาย child ให้เต็มพื้นที่ที่เหลือตามแกนหลัก ถ้ามีหลาย Expanded จะแบ่งพื้นที่ตามสัดส่วน <code>flex</code></p>
+<pre><code>Row(
+  mainAxisAlignment: MainAxisAlignment.center,
+  children: [
+    Container(height: 100, width: 100, color: Colors.blue),
+    Expanded(child: Container(height: 100, color: Colors.red)),   // กินที่ที่เหลือทั้งหมด
+  ],
+)
+
+// แบ่งสัดส่วน 1 : 2
+Row(children: [
+  Expanded(flex: 1, child: Container(height: 100, color: Colors.green)),
+  Expanded(flex: 2, child: Container(height: 100, color: Colors.orange)),
+])</code></pre>
+<figure class="fig">
+<svg viewBox="0 0 560 130" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Expanded">
+<style>.w{fill:#fff;font:600 13px system-ui,sans-serif;text-anchor:middle}.c{fill:var(--muted);font:12px system-ui,sans-serif;text-anchor:middle}</style>
+<rect x="10" y="10" width="100" height="40" fill="#0b6bcb"/><text class="w" x="60" y="35">100 คงที่</text>
+<rect x="110" y="10" width="440" height="40" fill="#ef4444"/><text class="w" x="330" y="35">Expanded (ที่เหลือทั้งหมด)</text>
+<rect x="10" y="80" width="180" height="40" fill="#2e9e5b"/><text class="w" x="100" y="105">flex 1</text>
+<rect x="190" y="80" width="360" height="40" fill="#e0a100"/><text class="w" x="370" y="105">flex 2</text>
+</svg>
+<figcaption>Expanded ขยายเต็มพื้นที่ที่เหลือ / แบ่งตาม flex</figcaption>
+</figure>
+
+<h2 id="stack">9. Stack และ Positioned</h2>
+<h3>Stack</h3>
+<p>Layout ที่<b>ซ้อน</b> Widget หลายตัวทับกัน (เหมือนเลเยอร์ภาพ) ตัวแรกอยู่ล่างสุด ตัวถัดไปซ้อนด้านบน ถ้าไม่ใช้ <code>Positioned</code> ลูกจะจัดตำแหน่งตาม <code>alignment</code> ของ Stack</p>
+<pre><code>Stack(
+  children: [
+    Container(width: 200, height: 200, color: Colors.blue),
+    Container(width: 150, height: 150, color: Colors.green),
+    Container(width: 100, height: 100, color: Colors.red),
+  ],
+)</code></pre>
+<figure class="fig">
+<svg viewBox="0 0 240 220" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Stack">
+<style>.t{fill:#fff;font:600 12px system-ui,sans-serif}</style>
+<rect x="20" y="10" width="200" height="200" fill="#0b6bcb"/><text class="t" x="28" y="28">1 (ล่างสุด)</text>
+<rect x="20" y="10" width="150" height="150" fill="#2e9e5b"/><text class="t" x="28" y="48">2</text>
+<rect x="20" y="10" width="100" height="100" fill="#ef4444"/><text class="t" x="28" y="68">3 (บนสุด)</text>
+</svg>
+<figcaption>ซ้อนกัน 3 ชั้น ชิดมุมซ้ายบนตามค่า default</figcaption>
+</figure>
+<h3>Positioned</h3>
+<p>กำหนดตำแหน่งของ child <b>ภายใน Stack</b> โดยระบุระยะจาก <code>top</code>, <code>left</code>, <code>right</code>, <code>bottom</code> — <b>ต้องใช้คู่กับ Stack เท่านั้น</b> เหมาะกับ badge แจ้งเตือน ไอคอนบนภาพ UI ซ้อนหลายชั้น</p>
+<pre><code>Stack(
+  children: [
+    Container(width: 200, height: 200, color: Colors.blue),
+    Positioned(
+      top: 10,
+      right: 10,
+      child: Container(width: 40, height: 40, color: Colors.red),
+    ),
+    Positioned(
+      bottom: 0,
+      left: 0,
+      child: Container(width: 60, height: 60, color: Colors.green),
+    ),
+  ],
+)</code></pre>
+
+<h2 id="button">10. Button Widgets</h2>
+<table>
+<tr><th></th><th>ElevatedButton</th><th>TextButton</th></tr>
+<tr><td>หน้าตา</td><td>นูนขึ้นจากพื้นหลัง มีพื้นหลังและเงา (elevation)</td><td>ข้อความเรียบ ๆ ไม่มีพื้นหลัง ไม่มีกรอบ (borderless)</td></tr>
+<tr><td>ใช้กับ</td><td>การกระทำหลัก เช่น "บันทึก", "ยืนยัน", "ส่งข้อมูล"</td><td>การกระทำรอง เช่น "ลืมรหัสผ่าน?", "ยกเลิก", "เรียนรู้เพิ่มเติม"</td></tr>
+<tr><td>อื่น ๆ</td><td colspan="2">ต้องมี <code>onPressed</code> (ฟังก์ชันที่ทำงานเมื่อกด) และ <code>child</code> · TextButton เปลี่ยนสีเมื่อกด/hover ตามธีม</td></tr>
+</table>
+<pre><code>ElevatedButton(
+  onPressed: () {
+    print('Button Pressed');
+  },
+  child: const Text('Click Me'),
+)
+
+TextButton(
+  onPressed: () {
+    print('Text Button Pressed');
+  },
+  child: const Text('Click Me'),
+)</code></pre>
+<div class="tip">ถ้า <code>onPressed: null</code> ปุ่มจะถูก disable (สีเทา กดไม่ได้)</div>
+
+<h2 id="image">11. Image Widgets</h2>
+<h3>Image.network — โหลดภาพจาก URL</h3>
+<p>เหมาะกับรูปจากเว็บ เช่น โปรไฟล์ผู้ใช้ แบนเนอร์ ภาพสินค้า (ต้องมีอินเทอร์เน็ต)</p>
+<pre><code>Image.network(
+  'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
+  width: 100,
+  height: 100,
+)</code></pre>
+<h3>Image.asset — ภาพจากไฟล์ในแอป</h3>
+<p>เหมาะกับภาพที่เตรียมไว้ล่วงหน้า เช่น โลโก้ ไอคอน แบนเนอร์ในแอป</p>
+<div class="card"><b>ขั้นตอนการใช้ asset</b>
+<ol>
+<li>สร้างโฟลเดอร์ <code>assets</code> <b>ระดับเดียวกับ</b>โฟลเดอร์ <code>lib</code></li>
+<li>ใส่ไฟล์ภาพลงไป เช่น <code>assets/pikachu.png</code></li>
+<li>ประกาศ path ใน <code>pubspec.yaml</code></li>
+<li>เรียกใช้ด้วย <code>Image.asset('path')</code></li>
+</ol></div>
+<figure class="fig">
+<svg viewBox="0 0 360 190" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="โครงสร้างโฟลเดอร์">
+<style>.m{fill:var(--text);font:14px ui-monospace,Consolas,monospace}.h{fill:var(--accent);font:600 14px ui-monospace,Consolas,monospace}</style>
+<rect x="10" y="5" width="340" height="180" rx="10" fill="var(--card)" stroke="var(--line)"/>
+<text class="h" x="28" y="32">my_project/</text>
+<text class="m" x="48" y="58">├── lib/</text>
+<text class="m" x="80" y="80">└── main.dart</text>
+<text class="h" x="48" y="104">├── assets/        ← ระดับเดียวกับ lib</text>
+<text class="m" x="80" y="126">└── pikachu.png</text>
+<text class="m" x="48" y="150">└── pubspec.yaml</text>
+</svg>
+<figcaption>โครงสร้างโฟลเดอร์</figcaption>
+</figure>
+<pre><code>flutter:
+  assets:
+    - assets/          # ระวัง: เยื้อง (indent) ต้องถูกต้อง</code></pre>
+<pre><code>Image.asset(
+  'assets/pikachu.png',
+  width: 100,
+  height: 100,
+)</code></pre>
+<div class="tip">หลังแก้ <code>pubspec.yaml</code> ต้องรัน <code>flutter pub get</code> (หรือ restart แอป) ถึงจะเห็นผล</div>
+
+<h2 id="listview">12. ListView</h2>
+<p>Widget แสดงรายการ Widget หลายตัวแบบ <b>เลื่อนได้ (scrollable)</b> เหมาะกับรายการยาว เช่น รายการสินค้า แชท เมนู</p>
+<table>
+<tr><th>ชนิด</th><th>ใช้เมื่อ</th></tr>
+<tr><td><code>ListView(children: [...])</code></td><td>รายการน้อย ๆ ที่รู้จำนวนแน่นอน</td></tr>
+<tr><td><code>ListView.builder</code></td><td>ข้อมูลจำนวนมาก หรือสร้างรายการแบบไดนามิกตามตำแหน่ง (สร้างเฉพาะ item ที่มองเห็น)</td></tr>
+<tr><td><code>ListView.separated</code></td><td>ต้องมีตัวคั่น (divider) ระหว่างแต่ละรายการ</td></tr>
+</table>
+<pre><code>// ListView ปกติ
+ListView(
+  children: [
+    Container(height: 350, width: double.infinity, color: Colors.grey,   child: const Text('Item 1')),
+    Container(height: 350, width: double.infinity, color: Colors.red,    child: const Text('Item 2')),
+    Container(height: 350, width: double.infinity, color: Colors.yellow, child: const Text('Item 3')),
+  ],
+)
+
+// ListView.builder
+ListView.builder(
+  itemCount: 20,
+  itemBuilder: (context, index) {
+    return ListTile(
+      title: Text('Item $index'),
+    );
+  },
+)
+
+// ListView.separated
+ListView.separated(
+  itemCount: 15,
+  itemBuilder: (context, index) {
+    return Text('Item $index');
+  },
+  separatorBuilder: (context, index) {
+    return const Divider();
+  },
+)
+
+// ListView แนวนอน
+ListView(
+  padding: const EdgeInsets.all(10),
+  scrollDirection: Axis.horizontal,
+  shrinkWrap: true,
+  children: [
+    Container(width: 300, color: Colors.red),
+    Container(width: 300, color: Colors.green),
+    Container(width: 300, color: Colors.blue),
+  ],
+)</code></pre>
+<div class="tip"><code>itemCount</code> = จำนวนรายการ · <code>itemBuilder</code> = ฟังก์ชันสร้างแต่ละ item (รับ <code>context</code>, <code>index</code>) · <code>separatorBuilder</code> = สร้างตัวคั่น · <code>scrollDirection: Axis.horizontal</code> = เลื่อนแนวนอน</div>
+
+<h2 id="state">13. Stateless vs Stateful Widget</h2>
+<table>
+<tr><th></th><th>StatelessWidget</th><th>StatefulWidget</th></tr>
+<tr><td>UI หลังสร้าง</td><td>ไม่เปลี่ยนแปลง</td><td>เปลี่ยนได้เมื่อ State เปลี่ยน</td></tr>
+<tr><td>เหมาะกับ</td><td>UI คงที่ เช่น ข้อความ รูปภาพ ปุ่มที่ไม่เปลี่ยน</td><td>Interactive เช่น ปุ่มกดแล้วเปลี่ยนสี, Counter</td></tr>
+<tr><td>โครงสร้าง</td><td>1 class (<code>build</code>)</td><td>2 class: Widget + State (<code>createState</code>)</td></tr>
+<tr><td>อัปเดต UI</td><td>—</td><td>เรียก <code>setState()</code></td></tr>
+</table>
+
+<h3>Stateless</h3>
+<pre><code>import 'package:flutter/material.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Flutter Demo',
+      theme: ThemeData(useMaterial3: true),
+      home: const GreetingWidget(name: 'Elon musk'),
+    );
+  }
+}
+
+class GreetingWidget extends StatelessWidget {
+  final String name;
+  const GreetingWidget({super.key, required this.name});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: Text('Hello, $name', style: const TextStyle(fontSize: 24)),
+      ),
+    );
+  }
+}</code></pre>
+
+<h3>Stateful (Counter)</h3>
+<pre><code>import 'package:flutter/material.dart';
+
+class MyStateful extends StatefulWidget {
+  const MyStateful({super.key});
+
+  @override
+  State&lt;MyStateful&gt; createState() =&gt; _MyStatefulState();
+}
+
+class _MyStatefulState extends State&lt;MyStateful&gt; {
+  int counter = 0;                       // ← State (ข้อมูลที่เปลี่ยนได้)
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text("StatefulWidget")),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text("Counter: $counter"),
+            ElevatedButton(
+              onPressed: () {
+                setState(() {            // แจ้ง Flutter ให้ build ใหม่
+                  counter++;
+                });
+              },
+              child: const Text("+ Increment"),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}</code></pre>
+<div class="ok">✅ ถ้าแก้ตัวแปรโดยไม่เรียก <code>setState()</code> ค่าตัวแปรเปลี่ยนจริง แต่หน้าจอจะ<b>ไม่อัปเดต</b></div>
+
+<h2 id="lifecycle">14. Lifecycle ของ StatefulWidget</h2>
+<figure class="fig">
+<svg viewBox="0 0 520 560" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Lifecycle">
+<style>.n1{fill:var(--card);stroke:var(--accent);stroke-width:2}.n2{fill:var(--ok);stroke:#2e9e5b;stroke-width:2}.n3{fill:var(--warn);stroke:#e0a100;stroke-width:2}.tt{fill:var(--text);font:600 14px ui-monospace,Consolas,monospace;text-anchor:middle}.ss{fill:var(--muted);font:12px system-ui,sans-serif;text-anchor:middle}.ar{stroke:var(--muted);stroke-width:1.8;fill:none;marker-end:url(#h)}</style>
+<defs><marker id="h" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="var(--muted)"/></marker></defs>
+<rect class="n1" x="160" y="8" width="200" height="40" rx="8"/><text class="tt" x="260" y="33">createState()</text>
+<path class="ar" d="M260 48V68"/>
+<rect class="n2" x="160" y="68" width="200" height="40" rx="8"/><text class="tt" x="260" y="93">initState()</text>
+<path class="ar" d="M260 108V128"/>
+<rect class="n1" x="130" y="128" width="260" height="40" rx="8"/><text class="tt" x="260" y="153">didChangeDependencies()</text>
+<path class="ar" d="M260 168V188"/>
+<rect class="n2" x="160" y="188" width="200" height="40" rx="8"/><text class="tt" x="260" y="213">build()</text>
+<text class="ss" x="260" y="248">← แสดง UI ได้แล้ว (Widget ทำงานอยู่)</text>
+<rect class="n3" x="10" y="270" width="210" height="62" rx="8"/><text class="tt" x="115" y="295" style="font-size:13px">didUpdateWidget()</text><text class="ss" x="115" y="316">Parent ส่งค่าใหม่ → build()</text>
+<rect class="n3" x="300" y="270" width="210" height="62" rx="8"/><text class="tt" x="405" y="295" style="font-size:13px">setState()</text><text class="ss" x="405" y="316">เปลี่ยน State → build()</text>
+<path class="ar" d="M115 270V235H175"/><path class="ar" d="M405 270V235H345"/>
+<path class="ar" d="M260 252V364" style="stroke-dasharray:4 4"/>
+<rect class="n1" x="160" y="364" width="200" height="40" rx="8"/><text class="tt" x="260" y="389">deactivate()</text>
+<path class="ar" d="M260 404V424"/>
+<rect class="n2" x="160" y="424" width="200" height="40" rx="8"/><text class="tt" x="260" y="449">dispose()</text>
+<text class="ss" x="260" y="486">เรียกครั้งสุดท้าย — ล้างข้อมูล ปิด Stream</text>
+</svg>
+<figcaption>ลำดับ Lifecycle (สีเขียว = เมธอดที่ใช้บ่อย/ต้องจำ)</figcaption>
+</figure>
+
+<table>
+<tr><th>เมธอด</th><th>เรียกเมื่อ</th><th>ใช้ทำอะไร</th></tr>
+<tr><td><code>createState()</code></td><td>สร้าง StatefulWidget (ครั้งเดียวตอนเริ่ม)</td><td>สร้าง State Object</td></tr>
+<tr><td><code>initState()</code></td><td>ครั้งเดียวตอน State ถูกสร้าง</td><td>ตั้งค่าเริ่มต้น ตัวแปร subscribe event โหลดข้อมูล · <b>ต้องเรียก <code>super.initState()</code> เสมอ</b></td></tr>
+<tr><td><code>didChangeDependencies()</code></td><td>InheritedWidget/Context เปลี่ยน เช่น Theme, Localization</td><td>เรียกได้หลายครั้งใน Lifecycle</td></tr>
+<tr><td><code>build()</code></td><td>State สร้างครั้งแรก หรือมีการเปลี่ยนแปลงที่กระทบ UI</td><td>สร้าง UI (เรียกทุกครั้งที่ State เปลี่ยน)</td></tr>
+<tr><td><code>didUpdateWidget()</code></td><td>Widget เดิมที่สร้าง State ถูกเปลี่ยน เช่น ส่งค่าใหม่ผ่าน Constructor</td><td>ตรวจสอบค่าที่เปลี่ยน</td></tr>
+<tr><td><code>deactivate()</code></td><td>State ถูกถอดออกจาก Widget Tree</td><td>—</td></tr>
+<tr><td><code>dispose()</code></td><td>ครั้งสุดท้ายก่อน State ถูกทำลาย</td><td>ล้างข้อมูล ยกเลิก Event ปิด Stream · <b>ต้องเรียก <code>super.dispose()</code></b></td></tr>
+<tr><td><code>setState()</code></td><td>เรียกเอง</td><td>แจ้ง Flutter ว่า State เปลี่ยน ให้สร้าง UI ใหม่ — <b>ไม่ใช่ Lifecycle แต่สำคัญ</b></td></tr>
+</table>
+<div class="tip">⚠️ สไลด์อาจเขียนคำอธิบายของ <code>deactivate()</code> ซ้ำกับ <code>didChangeDependencies()</code> — ในความเป็นจริง <code>deactivate()</code> เรียกเมื่อ State ถูกถอดจาก tree ก่อน <code>dispose()</code> ตอนสอบจำลำดับให้ถูกก็พอ</div>
+<pre><code>class _MyState extends State&lt;MyWidget&gt; {
+  @override
+  void initState() {
+    super.initState();      // ต้องเรียกก่อน
+    // ตั้งค่าเริ่มต้น / โหลดข้อมูล
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return const Text('Hello');
+  }
+
+  @override
+  void dispose() {
+    // ล้างข้อมูล / ยกเลิก subscribe
+    super.dispose();        // ต้องเรียกท้ายสุด
+  }
+}</code></pre>
+
+<h2 id="ex">15. โจทย์ Exercise พร้อมเฉลย</h2>
+
+<h3>Exercise I — Box Hello</h3>
+<div class="card">
+1. AppBar title ข้อความ "First Time App" (Scaffold)<br>
+2. กล่องพื้นหลังสีน้ำเงินด้วย <code>Container</code> ขนาด 250 × 250<br>
+3. <code>Text</code> แสดง Hello, ชื่อ-สกุล, รหัสนักศึกษา ปรับ <code>TextStyle</code> ได้<br>
+<i>Hint: ใช้ <code>Center</code> เป็น parent ของ Widget ที่ต้องการจัดกึ่งกลางจอ</i>
+</div>
+<details><summary>ดูเฉลย</summary>
+<pre><code>Scaffold(
+  appBar: AppBar(title: const Text('First Time App')),
+  body: Center(
+    child: Container(
+      width: 250,
+      height: 250,
+      color: Colors.blue,
+      child: const Center(
+        child: Text(
+          'Hello,\nชื่อ นามสกุล\n6xxxxxxxx',
+          textAlign: TextAlign.center,
+          style: TextStyle(color: Colors.white, fontSize: 20),
+        ),
+      ),
+    ),
+  ),
+)</code></pre></details>
+<figure class="fig">
+<svg viewBox="0 0 220 340" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="ผลลัพธ์ Exercise I">
+<rect x="20" y="8" width="180" height="324" rx="16" fill="var(--card)" stroke="var(--muted)" stroke-width="2"/>
+<path d="M20 24a16 16 0 0 1 16-16h148a16 16 0 0 1 16 16v28H20z" fill="#0b6bcb"/>
+<text x="34" y="36" fill="#fff" font-family="system-ui,sans-serif" font-weight="600" font-size="13">First Time App</text>
+<rect x="45" y="100" width="130" height="130" fill="#1e5fd6"/>
+<g fill="#fff" font-family="system-ui,sans-serif" font-size="12" text-anchor="middle"><text x="110" y="152">Hello,</text><text x="110" y="170">ชื่อ-สกุล</text><text x="110" y="188">รหัสนักศึกษา</text></g>
+</svg>
+<figcaption>ผลลัพธ์โดยประมาณ</figcaption>
+</figure>
+
+<h3>Exercise II — Layout หลากสี</h3>
+<div class="card">
+Column เป็นโครงสร้างหลัก 2 แถว (Row)<br>
+• แถวแรก: 3 กล่อง Container 100×100 คนละสี<br>
+• แถวสอง: 2 กล่อง สูง 100 กว้างเต็มพื้นที่ สัดส่วน 1:2 คนละสี<br>
+• ระยะห่างระหว่างกล่องในแถว 20 หน่วย (<i>Hint: SizedBox</i>)
+</div>
+<details><summary>ดูเฉลย</summary>
+<pre><code>Column(
+  mainAxisAlignment: MainAxisAlignment.center,
+  children: [
+    Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Container(width: 100, height: 100, color: Colors.red),
+        const SizedBox(width: 20),
+        Container(width: 100, height: 100, color: Colors.green),
+        const SizedBox(width: 20),
+        Container(width: 100, height: 100, color: Colors.blue),
+      ],
+    ),
+    const SizedBox(height: 20),
+    Row(
+      children: [
+        Expanded(flex: 1, child: Container(height: 100, color: Colors.orange)),
+        const SizedBox(width: 20),
+        Expanded(flex: 2, child: Container(height: 100, color: Colors.purple)),
+      ],
+    ),
+  ],
+)</code></pre></details>
+<figure class="fig">
+<svg viewBox="0 0 400 270" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="ผลลัพธ์ Exercise II">
+<g font-family="system-ui,sans-serif" font-size="12" fill="#fff" text-anchor="middle">
+<rect x="30" y="20" width="100" height="100" fill="#ef4444"/><rect x="150" y="20" width="100" height="100" fill="#2e9e5b"/><rect x="270" y="20" width="100" height="100" fill="#0b6bcb"/>
+<rect x="30" y="160" width="110" height="100" fill="#f59e0b"/><text x="85" y="215">flex 1</text>
+<rect x="160" y="160" width="210" height="100" fill="#8b5cf6"/><text x="265" y="215">flex 2</text>
+</g>
+<text x="200" y="146" fill="var(--muted)" font-family="system-ui,sans-serif" font-size="11" text-anchor="middle">↕ SizedBox(height: 20)</text>
+</svg>
+<figcaption>แถวบน 3 กล่องคงที่ แถวล่าง Expanded 1:2</figcaption>
+</figure>
+
+<h3>Exercise III — ไฟจราจร</h3>
+<div class="card">
+Stack เป็นโครงหลัก · กรอบตู้สีดำ 120×300 · ไฟ 3 ดวง (แดง เหลือง เขียว) วงกลม 80×80 · ใช้ Positioned เรียงบนลงล่างห่างเท่ากัน · จัดกึ่งกลางหน้าจอ<br>
+<i>Hint: ครอบ Stack ด้วย <code>Align</code> หรือ <code>Center</code></i>
+</div>
+<div class="tip">💡 คำนวณระยะห่าง: ความสูง 300 − (80 × 3) = 60 → แบ่ง 4 ช่อง ช่องละ <b>15</b> → <code>top</code> = 15, 110, 205 · แนวนอน (120 − 80) / 2 = <b>20</b> → <code>left: 20</code></div>
+<details><summary>ดูเฉลย</summary>
+<pre><code>Center(
+  child: SizedBox(
+    width: 120,
+    height: 300,
+    child: Stack(
+      children: [
+        Container(color: Colors.black),            // กรอบตู้ไฟ
+        Positioned(
+          top: 15, left: 20,
+          child: Container(
+            width: 80, height: 80,
+            decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
+          ),
+        ),
+        Positioned(
+          top: 110, left: 20,
+          child: Container(
+            width: 80, height: 80,
+            decoration: const BoxDecoration(color: Colors.yellow, shape: BoxShape.circle),
+          ),
+        ),
+        Positioned(
+          top: 205, left: 20,
+          child: Container(
+            width: 80, height: 80,
+            decoration: const BoxDecoration(color: Colors.green, shape: BoxShape.circle),
+          ),
+        ),
+      ],
+    ),
+  ),
+)</code></pre></details>
+<div class="tip">⚠️ ถ้าใช้ <code>shape: BoxShape.circle</code> ห้ามใส่ <code>color:</code> ตรง ๆ ใน Container พร้อม <code>decoration</code> — ต้องใส่สีใน <code>BoxDecoration</code> (ไม่งั้น error)</div>
+<figure class="fig">
+<svg viewBox="0 0 160 330" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="ไฟจราจร">
+<rect x="20" y="15" width="120" height="300" rx="4" fill="#111"/>
+<circle cx="80" cy="70" r="40" fill="#ef4444"/><circle cx="80" cy="165" r="40" fill="#facc15"/><circle cx="80" cy="260" r="40" fill="#22c55e"/>
+</svg>
+<figcaption>ไฟจราจร top = 15 / 110 / 205</figcaption>
+</figure>
+
+<h2 id="quiz">16. ทวนก่อนสอบ</h2>
+<details><summary>Widget คืออะไร?</summary>องค์ประกอบพื้นฐานของ UI ทุกอย่างในแอป Flutter</details>
+<details><summary>Parent กับ Child Widget ต่างกันอย่างไร?</summary>Parent คือ Widget ที่บรรจุ Widget อื่นไว้ข้างใน Child คือ Widget ที่อยู่ข้างใน</details>
+<details><summary>MaterialApp ทำหน้าที่อะไรบ้าง (4 ข้อ)?</summary>โครงสร้างพื้นฐานของแอป · กำหนดธีม · จัดการ Routing · กำหนดภาษา/ทิศทางข้อความ</details>
+<details><summary>Row กับ Column ต่างกันอย่างไร?</summary>Row จัดแนวนอน (ซ้าย→ขวา) Column จัดแนวตั้ง (บน→ล่าง) ทั้งคู่รับ <code>children</code> เป็น List</details>
+<details><summary>SizedBox กับ Container ต่างกันอย่างไร?</summary>SizedBox กำหนดขนาด/ช่องว่างเท่านั้น (กล่องเปล่า) Container ตกแต่งได้ (สี ขอบ มุมโค้ง padding ฯลฯ)</details>
+<details><summary>Expanded ใช้ทำอะไร และใช้ที่ไหนได้?</summary>ขยาย child ให้เต็มพื้นที่ที่เหลือตามแกนหลัก ใช้ภายใน Row/Column เท่านั้น แบ่งสัดส่วนด้วย <code>flex</code></details>
+<details><summary>Positioned ใช้ที่ไหน?</summary>ใช้ภายใน Stack เท่านั้น กำหนดตำแหน่งด้วย top, left, right, bottom</details>
+<details><summary>ElevatedButton กับ TextButton ต่างกันอย่างไร?</summary>ElevatedButton มีพื้นหลังและเงานูน ใช้กับการกระทำหลัก · TextButton เป็นข้อความเรียบ ๆ ไม่มีพื้นหลัง/กรอบ ใช้กับการกระทำรอง</details>
+<details><summary>Image.network กับ Image.asset ต่างกันอย่างไร?</summary>network โหลดภาพจาก URL บนอินเทอร์เน็ต · asset ใช้ภาพจากไฟล์ในแอป ต้องสร้างโฟลเดอร์ assets และประกาศ path ใน pubspec.yaml</details>
+<details><summary>ListView.builder ใช้เมื่อไหร่? ListView.separated ต่างกันอย่างไร?</summary>builder ใช้เมื่อข้อมูลมาก/สร้างแบบไดนามิก · separated เหมือน builder แต่มี <code>separatorBuilder</code> สำหรับตัวคั่น (เช่น Divider)</details>
+<details><summary>Stateless กับ Stateful ต่างกันอย่างไร?</summary>Stateless UI ไม่เปลี่ยนหลังสร้าง · Stateful UI เปลี่ยนได้เมื่อ State เปลี่ยน ใช้ <code>setState()</code> อัปเดต</details>
+<details><summary>ลำดับ Lifecycle ของ StatefulWidget?</summary>createState → initState → didChangeDependencies → build → (didUpdateWidget / setState → build ซ้ำ) → deactivate → dispose</details>
+<details><summary>initState() และ dispose() ต้องเรียกอะไรเสมอ?</summary><code>super.initState()</code> และ <code>super.dispose()</code></details>
+<details><summary>setState() เป็น Lifecycle หรือไม่?</summary>ไม่ใช่ Lifecycle แต่เป็นฟังก์ชันสำคัญที่แจ้ง Flutter ว่า State เปลี่ยนและต้อง build UI ใหม่</details>
+<details><summary>ถ้า Row มี Widget เกินขอบจอ แก้อย่างไร?</summary>ห่อด้วย <code>SingleChildScrollView</code> พร้อม <code>scrollDirection: Axis.horizontal</code></details>
+</main>
+<script>
+(function(){
+  var esc=function(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')};
+  var kw='class|extends|const|final|return|void|import|required|int|double|String|super|static|true|false|null|this|var|late|new';
+  var re=new RegExp('(\\/\\/[^\\n]*)|(\'(?:\\\\.|[^\'\\\\\\n])*\'|"(?:\\\\.|[^"\\\\\\n])*")|(@override)|\\b('+kw+')\\b|\\b(\\d+(?:\\.\\d+)?)\\b','g');
+  document.querySelectorAll('pre code').forEach(function(el){
+    var src=el.textContent,out='',last=0,m;
+    re.lastIndex=0;
+    while((m=re.exec(src))){
+      out+=esc(src.slice(last,m.index));
+      var cls=m[1]?'c':m[2]?'s':m[3]?'k':m[4]?'k':'n';
+      out+='<span class="'+cls+'">'+esc(m[0])+'</span>';
+      last=m.index+m[0].length;
+    }
+    out+=esc(src.slice(last));
+    el.innerHTML=out;
+  });
+})();
+</script>
+</body>
+</html>

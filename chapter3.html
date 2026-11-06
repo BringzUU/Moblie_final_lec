@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>บทที่ 3 Navigation — สรุปสอบบรรยาย Flutter Mobile</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top"><a href="index.html">← หน้าแรก</a><strong>บทที่ 3 — Navigation</strong></header>
+<main>
+<h1>บทที่ 3: Navigation</h1>
+<p style="color:var(--muted)">การเปลี่ยนหน้าจอ: Navigator, Named Routes, การส่งข้อมูลระหว่างหน้า, Bottom Navigation Bar</p>
+
+<nav class="toc">
+<a href="#what">Navigation คืออะไร</a>
+<a href="#stack">Stack: Push / Pop</a>
+<a href="#basic">แบบพื้นฐาน</a>
+<a href="#ex1">โจทย์</a>
+<a href="#named">Named Routes</a>
+<a href="#pass">ส่งข้อมูล</a>
+<a href="#back">รับค่ากลับ</a>
+<a href="#bottom">Bottom Nav Bar</a>
+<a href="#quiz">ทวนก่อนสอบ</a>
+</nav>
+
+<h2 id="what">1. Navigation คืออะไร</h2>
+<div class="card">
+<b>Navigation</b> คือกระบวนการ<b>เปลี่ยนหน้าจอ (Screens/Pages)</b> ภายในแอป ให้ผู้ใช้ไปดูข้อมูลหรือทำงานเพิ่มเติมในหน้าอื่นได้ โดยอาศัย <code>Navigator</code> Widget ซึ่งทำหน้าที่เป็นตัวจัดการ <b>Stack ของหน้าจอ</b>
+</div>
+<p>ใน Flutter หน้าจอ (screen) เรียกว่า <b>Route</b> ตัวอย่างในสไลด์: First Route (ปุ่ม Open route) → Second Route (ปุ่ม Go back!)</p>
+<table>
+<tr><th>ประเภท Navigation ในบทนี้</th><th>สรุป</th></tr>
+<tr><td>แบบพื้นฐาน</td><td>ใช้ <code>Navigator</code> + <code>MaterialPageRoute</code> เหมาะกับแอปง่าย ๆ หน้าจอไม่ซับซ้อน</td></tr>
+<tr><td>Named Routes</td><td>ตั้งชื่อ (String) ให้ route ใช้ <code>pushNamed</code> เหมาะกับแอปหลายหน้า / Flutter web</td></tr>
+<tr><td>Bottom Navigation Bar</td><td>เมนูด้านล่างสลับหน้าหลัก เช่น Home, Search, Profile</td></tr>
+</table>
+
+<h2 id="stack">2. Navigator = Stack (กองกระดาษ)</h2>
+<ul>
+<li><b>Push</b> — เพิ่มหน้าจอใหม่ไว้ด้านบนสุดของ Stack</li>
+<li><b>Pop</b> — ย้อนกลับ ลบหน้าจอบนสุดออก</li>
+<li>หน้าที่เห็นบนจอ = หน้าบนสุดของ Stack</li>
+</ul>
+<figure class="fig">
+<svg viewBox="0 0 640 250" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Navigator stack push pop">
+<style>.sh{font:600 14px system-ui,sans-serif;text-anchor:middle}.ar{stroke:var(--muted);stroke-width:2;fill:none;marker-end:url(#a)}.lb{fill:var(--muted);font:13px system-ui,sans-serif;text-anchor:middle}.ti{fill:var(--text);font:600 14px system-ui,sans-serif;text-anchor:middle}</style>
+<defs><marker id="a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="var(--muted)"/></marker></defs>
+<text class="ti" x="90" y="22">เริ่มต้น</text>
+<rect x="30" y="150" width="120" height="44" rx="6" fill="#0b6bcb"/><text class="sh" x="90" y="177" fill="#fff">First Route</text>
+<path class="ar" d="M165 170H230"/><text class="lb" x="197" y="160">push</text>
+<text class="ti" x="320" y="22">หลัง Push</text>
+<rect x="260" y="150" width="120" height="44" rx="6" fill="#0b6bcb"/><text class="sh" x="320" y="177" fill="#fff">First Route</text>
+<rect x="260" y="100" width="120" height="44" rx="6" fill="#2e9e5b"/><text class="sh" x="320" y="127" fill="#fff">Second Route</text>
+<text class="lb" x="320" y="88">▲ บนสุด = หน้าที่เห็น</text>
+<path class="ar" d="M395 170H460"/><text class="lb" x="427" y="160">pop</text>
+<text class="ti" x="550" y="22">หลัง Pop</text>
+<rect x="490" y="150" width="120" height="44" rx="6" fill="#0b6bcb"/><text class="sh" x="550" y="177" fill="#fff">First Route</text>
+</svg>
+<figcaption>Push เพิ่มหน้าบน Stack · Pop เอาหน้าบนสุดออก</figcaption>
+</figure>
+
+<h2 id="basic">3. Navigation แบบพื้นฐาน</h2>
+<h3>Push — ไปหน้าใหม่</h3>
+<pre><code>Navigator.push(
+  context,
+  MaterialPageRoute(builder: (context) =&gt; const SecondRoute()),
+);</code></pre>
+<h3>Pop — ย้อนกลับ</h3>
+<pre><code>Navigator.pop(context);</code></pre>
+<div class="card">
+<b>องค์ประกอบ</b>
+<ul>
+<li><code>Navigator.push(context, route)</code> — เพิ่มหน้าใหม่</li>
+<li><code>MaterialPageRoute</code> — route แบบ Material ที่มี animation เปลี่ยนหน้า</li>
+<li><code>builder: (context) =&gt; ...</code> — ฟังก์ชันที่คืน Widget ของหน้าปลายทาง</li>
+<li><code>Navigator.pop(context)</code> — ลบหน้าบนสุดออก ย้อนกลับหน้าก่อนหน้า</li>
+</ul></div>
+
+<h2 id="ex1">4. โจทย์: Navigation แบบพื้นฐาน</h2>
+<div class="card">
+1. สร้าง 2 หน้าจอ ใช้ <b>StatelessWidget</b><br>
+2. หน้าแรก: ปุ่มกลางจอ นำทางไปหน้าที่สอง<br>
+3. หน้าที่สอง: ปุ่มกลางจอ กลับไปหน้าแรก
+</div>
+<details open><summary>ดูเฉลย (โค้ดเต็ม)</summary>
+<pre><code>import 'package:flutter/material.dart';
+
+void main() {
+  runApp(const MaterialApp(
+    title: 'Navigation Basics',
+    home: FirstRoute(),
+  ));
+}
+
+class FirstRoute extends StatelessWidget {
+  const FirstRoute({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('First Route')),
+      body: Center(
+        child: ElevatedButton(
+          child: const Text('Open route'),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) =&gt; const SecondRoute()),
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
+class SecondRoute extends StatelessWidget {
+  const SecondRoute({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Second Route')),
+      body: Center(
+        child: ElevatedButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          child: const Text('Go back!'),
+        ),
+      ),
+    );
+  }
+}</code></pre></details>
+<div class="tip">💡 หน้าที่สองมี <b>ปุ่มลูกศรย้อนกลับ ← บน AppBar อัตโนมัติ</b> (Flutter ใส่ให้เมื่อมีหน้าก่อนหน้าใน Stack) กดแล้วทำงานเหมือน <code>pop</code></div>
+
+<h2 id="named">5. Named Routes</h2>
+<p>กำหนดเส้นทางด้วย<b>ชื่อ (String)</b> แทนการสร้าง <code>MaterialPageRoute</code> ทุกครั้งที่เปลี่ยนหน้า เหมาะกับแอปที่มี<b>หลายหน้าจอ</b> หรือทำ <b>Flutter web</b></p>
+<ol>
+<li>กำหนด <b>Map ของ route</b> ใน <code>MaterialApp</code> (<code>routes</code>) พร้อม <code>initialRoute</code></li>
+<li>ไปหน้าใหม่ด้วย <code>Navigator.pushNamed(context, '/ชื่อ')</code></li>
+<li>ย้อนกลับด้วย <code>Navigator.pop(context)</code> (เหมือนแบบพื้นฐาน)</li>
+</ol>
+<pre><code>void main() {
+  runApp(MaterialApp(
+    title: 'Named Routes',
+    initialRoute: '/',                       // หน้าแรกของแอป
+    routes: {
+      '/': (context) =&gt; const FirstScreen(),
+      '/second': (context) =&gt; const SecondScreen(),
+    },
+  ));
+}
+
+// ไปหน้า /second
+ElevatedButton(
+  onPressed: () {
+    Navigator.pushNamed(context, '/second');
+  },
+  child: const Text('Launch screen'),
+)
+
+// ย้อนกลับ
+ElevatedButton(
+  onPressed: () {
+    Navigator.pop(context);
+  },
+  child: const Text('Go back!'),
+)</code></pre>
+<table>
+<tr><th></th><th>แบบพื้นฐาน</th><th>Named Routes</th></tr>
+<tr><td>ไปหน้าใหม่</td><td><code>Navigator.push(context, MaterialPageRoute(...))</code></td><td><code>Navigator.pushNamed(context, '/path')</code></td></tr>
+<tr><td>กำหนด route</td><td>ใส่ใน builder ทุกครั้งที่ push</td><td>กำหนดครั้งเดียวใน <code>routes</code> ของ MaterialApp</td></tr>
+<tr><td>ย้อนกลับ</td><td colspan="2"><code>Navigator.pop(context)</code> เหมือนกัน</td></tr>
+<tr><td>เหมาะกับ</td><td>แอปง่าย หน้าน้อย</td><td>แอปหลายหน้า, Flutter web</td></tr>
+</table>
+<div class="tip">⚠️ ถ้ากำหนด <code>home:</code> แล้วอย่าใส่ route <code>'/'</code> ซ้ำใน <code>routes</code> (จะ error) — ถ้าใช้ <code>routes</code> ให้ใช้ <code>initialRoute</code> แทน <code>home</code></div>
+
+<h2 id="pass">6. ส่งข้อมูลระหว่างหน้าจอ (Passing Data)</h2>
+<p>ช่วยให้หน้าต่าง ๆ สื่อสารกันได้ — ส่งไปหน้าถัดไป และรับค่ากลับจากหน้านั้นได้</p>
+
+<h3>วิธีหลัก: ส่งผ่าน Constructor (arguments ของ Widget)</h3>
+<ol>
+<li>ปลายทางสร้าง <b>Constructor</b> รับค่า (ตัวแปร <code>final</code> + <code>required</code>)</li>
+<li>ต้นทางส่งค่าตอนสร้าง Widget ใน <code>MaterialPageRoute</code></li>
+</ol>
+<pre><code>// หน้าปลายทาง: รับค่าผ่าน Constructor
+class DetailScreen extends StatelessWidget {
+  final String title;
+  final int id;
+
+  const DetailScreen({super.key, required this.title, required this.id});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text(title)),
+      body: Center(child: Text('ID: $id')),
+    );
+  }
+}
+
+// หน้าต้นทาง: ส่งค่าตอน push
+Navigator.push(
+  context,
+  MaterialPageRoute(
+    builder: (context) =&gt; const DetailScreen(title: 'สินค้า A', id: 101),
+  ),
+);</code></pre>
+
+<h3>ตัวอย่าง: ส่งข้อมูลจาก ListView ไปหน้ารายละเอียด</h3>
+<pre><code>ListView.builder(
+  itemCount: items.length,
+  itemBuilder: (context, index) {
+    return ListTile(
+      title: Text(items[index]),
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) =&gt; DetailScreen(title: items[index], id: index),
+          ),
+        );
+      },
+    );
+  },
+)</code></pre>
+
+<h3>เสริม: ส่งผ่าน Named Route ด้วย arguments</h3>
+<pre><code>// ส่ง
+Navigator.pushNamed(context, '/detail', arguments: 'Hello');
+
+// รับ (ในหน้าปลายทาง)
+final msg = ModalRoute.of(context)!.settings.arguments as String;</code></pre>
+
+<h2 id="back">7. รับค่ากลับจากหน้าที่สอง</h2>
+<p>ส่งค่ากลับด้วยการใส่ผลลัพธ์ใน <code>pop</code> และรับด้วย <code>await</code> ที่ <code>push</code></p>
+<pre><code>// หน้าแรก: await รอผลลัพธ์
+onPressed: () async {
+  final result = await Navigator.push(
+    context,
+    MaterialPageRoute(builder: (context) =&gt; const SelectScreen()),
+  );
+  print(result);               // 'Yes'
+},
+
+// หน้าที่สอง: pop พร้อมค่า
+onPressed: () {
+  Navigator.pop(context, 'Yes');
+},</code></pre>
+<figure class="fig">
+<svg viewBox="0 0 600 170" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="ส่งข้อมูลไป-กลับ">
+<style>.t{fill:#fff;font:600 14px system-ui,sans-serif;text-anchor:middle}.l{fill:var(--text);font:13px system-ui,sans-serif;text-anchor:middle}.ar{stroke:var(--muted);stroke-width:2;fill:none;marker-end:url(#b)}</style>
+<defs><marker id="b" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="var(--muted)"/></marker></defs>
+<rect x="20" y="40" width="160" height="80" rx="10" fill="#0b6bcb"/><text class="t" x="100" y="85">หน้าแรก</text>
+<rect x="420" y="40" width="160" height="80" rx="10" fill="#2e9e5b"/><text class="t" x="500" y="85">หน้าที่สอง</text>
+<path class="ar" d="M190 62H410"/><text class="l" x="300" y="52">push + ส่ง arguments (Constructor)</text>
+<path class="ar" d="M410 102H190"/><text class="l" x="300" y="127">pop(context, ผลลัพธ์) → await รับค่า</text>
+</svg>
+<figcaption>ทิศทางการส่งข้อมูล</figcaption>
+</figure>
+
+<h2 id="bottom">8. Bottom Navigation Bar</h2>
+<p>Widget เมนู<b>ด้านล่างจอ</b> ช่วยสลับระหว่างหน้า<b>หลัก</b>ของแอป เช่น Home, Search, Profile ใส่ใน <code>Scaffold</code> ที่ <code>bottomNavigationBar</code> และต้องใช้ <b>StatefulWidget</b> เพราะต้องจำว่าเลือกแท็บไหนอยู่</p>
+<div class="card"><b>องค์ประกอบสำคัญ</b>
+<ul>
+<li><code>currentIndex</code> — ตำแหน่งแท็บที่เลือกอยู่ (State)</li>
+<li><code>onTap: (index) { setState(...) }</code> — เมื่อกดแท็บ ให้เปลี่ยน index</li>
+<li><code>items: [BottomNavigationBarItem(icon:, label:)]</code> — รายการแท็บ (อย่างน้อย 2 อัน)</li>
+<li>เก็บหน้าไว้ใน <code>List&lt;Widget&gt;</code> แล้วแสดง <code>_pages[_currentIndex]</code> ที่ <code>body</code></li>
+</ul></div>
+<figure class="fig">
+<svg viewBox="0 0 260 340" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Bottom navigation bar">
+<style>.i{font:12px system-ui,sans-serif;text-anchor:middle}</style>
+<rect x="30" y="8" width="200" height="324" rx="18" fill="var(--card)" stroke="var(--muted)" stroke-width="2"/>
+<path d="M30 26a18 18 0 0 1 18-18h164a18 18 0 0 1 18 18v28H30z" fill="#0b6bcb"/>
+<text x="46" y="37" fill="#fff" font-family="system-ui,sans-serif" font-weight="600" font-size="13">Home</text>
+<text x="130" y="170" text-anchor="middle" fill="var(--text)" font-family="system-ui,sans-serif" font-size="18" font-weight="600">body = _pages[index]</text>
+<rect x="30" y="268" width="200" height="64" rx="0" fill="var(--bg)" stroke="var(--line)"/>
+<g class="i"><text x="63" y="296" fill="#0b6bcb" font-size="20">🏠</text><text x="63" y="318" fill="#0b6bcb" font-weight="600">Home</text>
+<text x="130" y="296" font-size="20">🔍</text><text x="130" y="318" fill="var(--muted)">Search</text>
+<text x="197" y="296" font-size="20">👤</text><text x="197" y="318" fill="var(--muted)">Profile</text></g>
+</svg>
+<figcaption>Home / Search / Profile — แท็บที่เลือกจะถูกเน้นสี</figcaption>
+</figure>
+<pre><code>import 'package:flutter/material.dart';
+
+class MainScreen extends StatefulWidget {
+  const MainScreen({super.key});
+
+  @override
+  State&lt;MainScreen&gt; createState() =&gt; _MainScreenState();
+}
+
+class _MainScreenState extends State&lt;MainScreen&gt; {
+  int _currentIndex = 0;                    // แท็บที่เลือกอยู่
+
+  final List&lt;Widget&gt; _pages = const [
+    Center(child: Text('Home Page')),
+    Center(child: Text('Search Page')),
+    Center(child: Text('Profile Page')),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Bottom Navigation')),
+      body: _pages[_currentIndex],          // แสดงหน้าตาม index
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTap: (index) {
+          setState(() {
+            _currentIndex = index;          // เปลี่ยนแท็บ
+          });
+        },
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+          BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
+        ],
+      ),
+    );
+  }
+}</code></pre>
+<div class="tip">💡 ถ้ามีแท็บ 4 อันขึ้นไป ต้องตั้ง <code>type: BottomNavigationBarType.fixed</code> ไม่งั้นแท็บจะเป็นแบบ shifting และสีอาจเพี้ยน</div>
+
+<h2 id="quiz">9. ทวนก่อนสอบ</h2>
+<details><summary>Navigation ใน Flutter คืออะไร?</summary>กระบวนการเปลี่ยนหน้าจอภายในแอป โดยใช้ Navigator Widget ที่จัดการ Stack ของหน้าจอ</details>
+<details><summary>Navigator ทำงานแบบโครงสร้างอะไร? Push / Pop คืออะไร?</summary>แบบ Stack (กองกระดาษ) · Push = วางหน้าใหม่บนสุดของ Stack · Pop = ลบหน้าบนสุดออกเพื่อย้อนกลับ</details>
+<details><summary>เขียนโค้ดไปหน้าใหม่แบบพื้นฐาน</summary><code>Navigator.push(context, MaterialPageRoute(builder: (context) =&gt; const SecondRoute()));</code></details>
+<details><summary>เขียนโค้ดย้อนกลับ</summary><code>Navigator.pop(context);</code></details>
+<details><summary>Named Routes คืออะไร ใช้เมื่อไหร่?</summary>การกำหนด route ด้วยชื่อ (String) ผ่าน Map <code>routes</code> ใน MaterialApp แล้วใช้ <code>pushNamed</code> เหมาะกับแอปหลายหน้าและ Flutter web</details>
+<details><summary>การย้อนกลับใน Named Routes ใช้อะไร?</summary><code>Navigator.pop(context)</code> เหมือนแบบพื้นฐาน</details>
+<details><summary>ส่งข้อมูลไปอีกหน้าทำอย่างไร?</summary>สร้าง Constructor ในหน้าปลายทางรับค่า (<code>final</code> + <code>required</code>) แล้วส่งค่าตอนสร้าง Widget ใน MaterialPageRoute</details>
+<details><summary>รับค่ากลับจากหน้าที่สองทำอย่างไร?</summary>หน้าที่สอง <code>Navigator.pop(context, ค่า)</code> · หน้าแรก <code>final r = await Navigator.push(...)</code></details>
+<details><summary>Bottom Navigation Bar ใช้ทำอะไร? ทำไมต้องเป็น Stateful?</summary>เมนูด้านล่างสลับหน้าหลัก (Home, Search, Profile) · ต้อง Stateful เพราะต้องเก็บ <code>currentIndex</code> และเรียก <code>setState()</code> เมื่อกดแท็บ</details>
+<details><summary>BottomNavigationBar ต้องมี property อะไรบ้าง?</summary><code>items</code> (อย่างน้อย 2 รายการ), <code>currentIndex</code>, <code>onTap</code></details>
+</main>
+<script>
+(function(){
+  var esc=function(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')};
+  var kw='class|extends|const|final|return|void|import|required|int|double|String|super|static|true|false|null|this|var|late|new|async|await';
+  var re=new RegExp('(\\/\\/[^\\n]*)|(\'(?:\\\\.|[^\'\\\\\\n])*\'|"(?:\\\\.|[^"\\\\\\n])*")|(@override)|\\b('+kw+')\\b|\\b(\\d+(?:\\.\\d+)?)\\b','g');
+  document.querySelectorAll('pre code').forEach(function(el){
+    var src=el.textContent,out='',last=0,m;
+    re.lastIndex=0;
+    while((m=re.exec(src))){
+      out+=esc(src.slice(last,m.index));
+      var cls=m[1]?'c':m[2]?'s':m[3]?'k':m[4]?'k':'n';
+      out+='<span class="'+cls+'">'+esc(m[0])+'</span>';
+      last=m.index+m[0].length;
+    }
+    out+=esc(src.slice(last));
+    el.innerHTML=out;
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>บทที่ 1 — Mobile, Flutter และ Dart</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top"><a href="index.html">← หน้าหลัก</a><strong>บทที่ 1: Mobile, Flutter และ Dart</strong></header>
+<main>
+<h1>บทที่ 1 — Mobile, Flutter และ Dart</h1>
+<nav class="toc">
+<a href="#native">Native vs Cross</a><a href="#flutter">Flutter</a><a href="#basic">พื้นฐาน Dart</a><a href="#control">เงื่อนไข/Loop</a><a href="#null">Null Safety</a><a href="#coll">Collection</a><a href="#func">Function</a><a href="#oop">OOP</a><a href="#quiz">ฝึกทำข้อสอบ</a>
+</nav>
+
+<h2 id="native">1. Native vs Cross-platform</h2>
+<div class="fig">
+<svg viewBox="0 0 640 200" width="640" role="img" aria-label="เปรียบเทียบ Native กับ Cross-platform">
+<rect x="10" y="10" width="290" height="180" rx="12" fill="none" stroke="#5aaeff" stroke-width="2"/>
+<text x="155" y="38" text-anchor="middle" font-size="18" font-weight="700" fill="currentColor">Native</text>
+<rect x="30" y="55" width="110" height="50" rx="8" fill="#3ddc84"/><text x="85" y="85" text-anchor="middle" font-size="13" fill="#000">Android: Kotlin/Java</text>
+<rect x="160" y="55" width="120" height="50" rx="8" fill="#9aa5bd"/><text x="220" y="85" text-anchor="middle" font-size="13" fill="#000">iOS: Swift/Obj-C</text>
+<text x="155" y="140" text-anchor="middle" font-size="13" fill="currentColor">เขียน 2 ชุดโค้ด</text>
+<text x="155" y="162" text-anchor="middle" font-size="13" fill="currentColor">IDE: Android Studio / Xcode</text>
+<rect x="340" y="10" width="290" height="180" rx="12" fill="none" stroke="#5aaeff" stroke-width="2"/>
+<text x="485" y="38" text-anchor="middle" font-size="18" font-weight="700" fill="currentColor">Cross-platform</text>
+<rect x="400" y="55" width="170" height="50" rx="8" fill="#5aaeff"/><text x="485" y="85" text-anchor="middle" font-size="13" fill="#000">โค้ดชุดเดียว (Dart)</text>
+<text x="485" y="140" text-anchor="middle" font-size="13" fill="currentColor">รันได้ทั้ง Android + iOS</text>
+<text x="485" y="162" text-anchor="middle" font-size="13" fill="currentColor">Flutter / React Native / .NET MAUI</text>
+</svg>
+<figcaption>เขียนครั้งเดียว ใช้หลายแพลตฟอร์ม vs เขียนแยกแต่ละระบบ</figcaption>
+</div>
+<table>
+<tr><th>Framework</th><th>ภาษา</th><th>จุดเด่น</th></tr>
+<tr><td>Flutter</td><td>Dart</td><td>UI สวย ทำงานเร็ว พัฒนาโดย Google</td></tr>
+<tr><td>React Native</td><td>JavaScript/TypeScript</td><td>ใช้ร่วมกับ Web Tech ได้ดี</td></tr>
+<tr><td>.NET MAUI</td><td>C#</td><td>เหมาะกับสาย .NET</td></tr>
+</table>
+
+<h2 id="flutter">2. Flutter และเครื่องมือ</h2>
+<div class="card">
+<b>Flutter</b> = Open Source Framework สร้างแอปจากโค้ด Dart ชุดเดียว รองรับ Android, iOS, Web, Windows, macOS, Linux สร้าง UI ด้วย <b>Widget</b>
+</div>
+<table>
+<tr><th>เครื่องมือ</th><th>หน้าที่</th></tr>
+<tr><td>Git</td><td>Version Control ย้อนดูเวอร์ชันเก่า ทำงานร่วมกันเป็นทีม</td></tr>
+<tr><td>Flutter SDK</td><td>Dart SDK + Flutter Framework + CLI (<code>flutter run</code>, <code>flutter build</code>) + DevTools + Hot Reload</td></tr>
+<tr><td>Android Studio</td><td>IDE จัดการ Android SDK, Emulator, Debug, Profiler, Logcat</td></tr>
+<tr><td>VS Code</td><td>Code Editor เบา ติดตั้ง Flutter + Dart Extension</td></tr>
+<tr><td>DartPad</td><td>ทดลองเขียน Dart บนเว็บ (dartpad.dev) ไม่ต้องติดตั้ง ต้องมีอินเทอร์เน็ต</td></tr>
+</table>
+<div class="tip"><b>Hot Reload:</b> แก้โค้ดแล้วเห็นผลทันทีโดยไม่ต้องรันแอปใหม่ทั้งหมด</div>
+
+<h2 id="basic">3. พื้นฐานภาษา Dart</h2>
+<h3>โครงสร้างโปรแกรม</h3>
+<pre><code><span class="c">// main() คือจุดเริ่มทำงานของโปรแกรม</span>
+<span class="k">void</span> main() {          <span class="c">// {} คือ block</span>
+  print(<span class="s">'Hello Dart'</span>);  <span class="c">// ; จบคำสั่ง</span>
+  <span class="c">/* คอมเมนต์
+     หลายบรรทัด */</span>
+}</code></pre>
+<h3>ตัวแปร 3 แบบ</h3>
+<pre><code><span class="k">int</span> age = <span class="n">20</span>;            <span class="c">// 1. Static type ระบุชนิดชัดเจน</span>
+<span class="k">dynamic</span> x = <span class="s">'text'</span>;      <span class="c">// 2. Dynamic เปลี่ยนชนิดได้</span>
+x = <span class="n">100</span>;
+<span class="k">var</span> name = <span class="s">'Bank'</span>;       <span class="c">// 3. var ให้ Dart เดาชนิดเอง</span>
+<span class="k">var</span> y;                    <span class="c">// ประกาศก่อน (ชนิดเป็น dynamic)</span>
+y = <span class="n">5</span>;</code></pre>
+<div class="card"><b>กฎตั้งชื่อตัวแปร</b>
+<ul>
+<li>ขึ้นต้นด้วย A-Z, a-z หรือ <code>_</code> เท่านั้น (ห้ามขึ้นต้นด้วยตัวเลข)</li>
+<li>case-sensitive (ตัวเล็ก/ใหญ่ต่างกัน)</li>
+<li>ห้ามอักขระพิเศษ/ช่องว่าง และห้ามชื่อซ้ำกับ keyword</li>
+<li>ห้ามชื่อซ้ำกันใน scope เดียวกัน</li>
+</ul></div>
+<h3>ค่าคงที่: final vs const</h3>
+<pre><code><span class="k">final</span> now = DateTime.now();  <span class="c">// กำหนดค่าครั้งเดียว ตอนรันโปรแกรม (runtime)</span>
+<span class="k">const</span> pi = <span class="n">3.14</span>;            <span class="c">// ต้องรู้ค่าตั้งแต่ตอน compile (compile-time)</span></code></pre>
+<div class="ok"><b>ตอบข้อสอบ:</b> ทั้งคู่ต้องกำหนดค่าตอนประกาศและเปลี่ยนไม่ได้ ต่างกันที่ <code>final</code> ค่าอาจมาจากตอนรัน ส่วน <code>const</code> ต้องเป็นค่าที่แน่นอนตั้งแต่ compile</div>
+<h3>Operator</h3>
+<table>
+<tr><th>กลุ่ม</th><th>ตัวอย่าง</th></tr>
+<tr><td>คณิตศาสตร์</td><td><code>+ - * / ~/ %</code> (<code>~/</code> = หารเอาจำนวนเต็ม)</td></tr>
+<tr><td>เพิ่ม/ลด</td><td><code>++ --</code></td></tr>
+<tr><td>กำหนดค่า</td><td><code>= += -= *= /=</code></td></tr>
+<tr><td>เปรียบเทียบ (ได้ true/false)</td><td><code>== != &gt; &lt; &gt;= &lt;=</code></td></tr>
+<tr><td>ตรรกะ</td><td><code>&amp;&amp; || !</code></td></tr>
+</table>
+
+<h2 id="control">4. เงื่อนไขและ Loop</h2>
+<h3>if / else if / else</h3>
+<pre><code><span class="k">int</span> score = <span class="n">75</span>;
+<span class="k">if</span> (score &gt;= <span class="n">80</span>) {
+  print(<span class="s">'A'</span>);
+} <span class="k">else if</span> (score &gt;= <span class="n">70</span>) {
+  print(<span class="s">'B'</span>);
+} <span class="k">else</span> {
+  print(<span class="s">'C'</span>);
+}</code></pre>
+<h3>switch</h3>
+<pre><code><span class="k">switch</span> (day) {
+  <span class="k">case</span> <span class="n">1</span>:
+    print(<span class="s">'Mon'</span>);
+    <span class="k">break</span>;        <span class="c">// หยุดหลังตรง case</span>
+  <span class="k">default</span>:
+    print(<span class="s">'Other'</span>);
+}</code></pre>
+<div class="tip">ตามสไลด์: ถ้าไม่มี <code>break;</code> โปรแกรมจะทำต่อไปยัง case ถัดไป (เขียน break ไว้ในข้อสอบเสมอเพื่อความปลอดภัย)</div>
+<h3>Loop 3 แบบ</h3>
+<table>
+<tr><th>Loop</th><th>จุดสำคัญ</th></tr>
+<tr><td><code>while</code></td><td>ตรวจเงื่อนไขก่อน ทำซ้ำตราบใดที่เป็นจริง (อาจไม่ทำเลยก็ได้)</td></tr>
+<tr><td><code>for</code></td><td>กำหนดค่าเริ่มต้น เงื่อนไข และการเปลี่ยนค่า ในบรรทัดเดียว</td></tr>
+<tr><td><code>do...while</code></td><td>ทำอย่างน้อย 1 ครั้งเสมอ แล้วค่อยตรวจเงื่อนไข</td></tr>
+</table>
+<pre><code><span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= <span class="n">5</span>; i++) {
+  <span class="k">if</span> (i == <span class="n">2</span>) <span class="k">continue</span>;  <span class="c">// ข้ามรอบนี้ ไปรอบถัดไป</span>
+  <span class="k">if</span> (i == <span class="n">4</span>) <span class="k">break</span>;     <span class="c">// ออกจาก loop ทันที</span>
+  print(i);                   <span class="c">// พิมพ์ 1, 3</span>
+}
+
+<span class="k">int</span> n = <span class="n">0</span>;
+<span class="k">do</span> { print(<span class="s">'รันก่อน 1 ครั้ง'</span>); n++; } <span class="k">while</span> (n &lt; <span class="n">0</span>);</code></pre>
+<h3>String</h3>
+<p>ใช้ <code>' '</code> หรือ <code>" "</code> ได้ทั้งคู่ เช่น <code>"Hello"</code>, <code>'สวัสดี'</code>, <code>"123"</code> (เลขที่อยู่ในรูปข้อความ) และแทรกตัวแปรด้วย <code>'$name'</code> หรือ <code>'${a + b}'</code></p>
+
+<h2 id="null">5. Null Safety</h2>
+<div class="card"><b>null</b> = "ไม่มีค่าเลย" (ไม่ใช่ 0, ไม่ใช่ false, ไม่ใช่ string ว่าง)<br>
+<b>Null Safety</b> = ฟีเจอร์ป้องกัน error จากการเรียกใช้ตัวแปรที่เป็น null (null dereference error ทำให้แอปพังตอนรัน) ตั้งแต่ Dart 2.12 ตัวแปรจะเป็น null ไม่ได้โดยอัตโนมัติ เว้นแต่ระบุว่าอนุญาต</div>
+<pre><code><span class="k">String</span>? name;            <span class="c">// Nullable type: ใส่ ? ต่อท้ายชนิด เก็บ null ได้</span>
+name = <span class="k">null</span>;
+
+print(name ?? <span class="s">'ไม่มีชื่อ'</span>);   <span class="c">// ?? ถ้า null ใช้ค่าหลัง ??</span>
+name ??= <span class="s">'Guest'</span>;          <span class="c">// ??= กำหนดค่าเฉพาะตอนที่ยังเป็น null</span>
+print(name?.length);          <span class="c">// ?. เรียกใช้เมื่อไม่เป็น null (ไม่งั้นได้ null)</span>
+print(name!.length);          <span class="c">// ! ยืนยันว่าไม่ null (ถ้าผิดจะ error ตอนรัน)</span></code></pre>
+<table>
+<tr><th>เครื่องหมาย</th><th>ชื่อ</th><th>ความหมาย</th></tr>
+<tr><td><code>??</code></td><td>if-null</td><td>กำหนดค่าเริ่มต้นหากเป็น null</td></tr>
+<tr><td><code>??=</code></td><td>null-aware assignment</td><td>กำหนดค่าหากตัวแปรเป็น null อยู่</td></tr>
+<tr><td><code>?.</code></td><td>null-aware access</td><td>เรียกใช้เมื่อไม่เป็น null</td></tr>
+<tr><td><code>!</code></td><td>null assertion</td><td>ยืนยันว่าไม่ null (ผิดแล้ว error ตอนรัน)</td></tr>
+</table>
+
+<h2 id="coll">6. Collection: List, Set, Map</h2>
+<div class="fig">
+<svg viewBox="0 0 640 170" width="640" role="img" aria-label="เปรียบเทียบ List Set Map">
+<g font-size="13" fill="currentColor">
+<text x="100" y="22" text-anchor="middle" font-weight="700">List  [ ]</text>
+<rect x="20" y="35" width="40" height="40" fill="none" stroke="#5aaeff" stroke-width="2"/><rect x="60" y="35" width="40" height="40" fill="none" stroke="#5aaeff" stroke-width="2"/><rect x="100" y="35" width="40" height="40" fill="none" stroke="#5aaeff" stroke-width="2"/><rect x="140" y="35" width="40" height="40" fill="none" stroke="#5aaeff" stroke-width="2"/>
+<text x="40" y="60" text-anchor="middle">80</text><text x="80" y="60" text-anchor="middle">90</text><text x="120" y="60" text-anchor="middle">80</text><text x="160" y="60" text-anchor="middle">55</text>
+<text x="40" y="92" text-anchor="middle">0</text><text x="80" y="92" text-anchor="middle">1</text><text x="120" y="92" text-anchor="middle">2</text><text x="160" y="92" text-anchor="middle">3</text>
+<text x="100" y="125" text-anchor="middle">มีลำดับ index เริ่มที่ 0</text><text x="100" y="145" text-anchor="middle">ซ้ำได้</text>
+<text x="320" y="22" text-anchor="middle" font-weight="700">Set  { }</text>
+<ellipse cx="320" cy="70" rx="70" ry="38" fill="none" stroke="#5aaeff" stroke-width="2"/>
+<text x="320" y="66" text-anchor="middle">80  90  55</text><text x="320" y="125" text-anchor="middle">ห้ามซ้ำ</text><text x="320" y="145" text-anchor="middle">(ใส่ 80 ซ้ำ ก็ยังมี 80 ตัวเดียว)</text>
+<text x="540" y="22" text-anchor="middle" font-weight="700">Map  { key: value }</text>
+<rect x="470" y="35" width="70" height="30" fill="none" stroke="#5aaeff" stroke-width="2"/><rect x="540" y="35" width="70" height="30" fill="none" stroke="#5aaeff" stroke-width="2"/>
+<text x="505" y="55" text-anchor="middle">'name'</text><text x="575" y="55" text-anchor="middle">'Anna'</text>
+<rect x="470" y="65" width="70" height="30" fill="none" stroke="#5aaeff" stroke-width="2"/><rect x="540" y="65" width="70" height="30" fill="none" stroke="#5aaeff" stroke-width="2"/>
+<text x="505" y="85" text-anchor="middle">'age'</text><text x="575" y="85" text-anchor="middle">20</text>
+<text x="540" y="125" text-anchor="middle">คู่ key-value</text><text x="540" y="145" text-anchor="middle">key ห้ามซ้ำ</text>
+</g></svg>
+<figcaption>List / Set / Map ต่างกันอย่างไร</figcaption>
+</div>
+<table>
+<tr><th></th><th>List</th><th>Set</th><th>Map</th></tr>
+<tr><td>สัญลักษณ์</td><td><code>[ ]</code></td><td><code>{ }</code></td><td><code>{key: value}</code></td></tr>
+<tr><td>ลำดับ/index</td><td>มี (เริ่ม 0)</td><td>ไม่เน้น index</td><td>เข้าถึงด้วย key</td></tr>
+<tr><td>ข้อมูลซ้ำ</td><td>ได้</td><td>ไม่ได้</td><td>key ซ้ำไม่ได้</td></tr>
+</table>
+<h3>List</h3>
+<pre><code><span class="k">List</span>&lt;<span class="k">int</span>&gt; score = [<span class="n">80</span>, <span class="n">90</span>, <span class="n">55</span>];
+print(score[<span class="n">0</span>]);        <span class="c">// 80</span>
+score[<span class="n">2</span>] = <span class="n">60</span>;           <span class="c">// แก้ค่าด้วย index</span>
+score.add(<span class="n">70</span>);          <span class="c">// เพิ่มท้าย</span>
+score.remove(<span class="n">90</span>);       <span class="c">// ลบตามค่า</span>
+print(score.length);    <span class="c">// จำนวนสมาชิก</span></code></pre>
+<h3>Set</h3>
+<pre><code><span class="k">Set</span>&lt;<span class="k">int</span>&gt; s = {<span class="n">1</span>, <span class="n">2</span>, <span class="n">3</span>};
+s.add(<span class="n">2</span>);               <span class="c">// ซ้ำ จึงไม่ถูกเพิ่ม</span>
+print(s.contains(<span class="n">3</span>));   <span class="c">// true</span></code></pre>
+<h3>Map</h3>
+<pre><code><span class="k">Map</span>&lt;<span class="k">String</span>, <span class="k">dynamic</span>&gt; user = {<span class="s">'name'</span>: <span class="s">'Anna'</span>, <span class="s">'age'</span>: <span class="n">20</span>};
+print(user[<span class="s">'name'</span>]);    <span class="c">// Anna</span>
+user[<span class="s">'city'</span>] = <span class="s">'BKK'</span>;     <span class="c">// เพิ่มคู่ใหม่</span>
+print(user.keys);       <span class="c">// รายการ key</span></code></pre>
+<h3>กรองและแปลงข้อมูล</h3>
+<table>
+<tr><th>เมธอด</th><th>ทำอะไร</th></tr>
+<tr><td><code>where()</code></td><td>กรองตามเงื่อนไข (คืน <code>Iterable&lt;T&gt;</code>)</td></tr>
+<tr><td><code>map()</code></td><td>แปลงสมาชิกแต่ละตัวเป็นค่าใหม่</td></tr>
+<tr><td><code>firstWhere()</code></td><td>หาตัวแรกที่ตรงเงื่อนไข</td></tr>
+<tr><td><code>any()</code> / <code>every()</code></td><td>มีบางตัว / ทุกตัวตรงเงื่อนไขไหม</td></tr>
+<tr><td><code>forEach()</code></td><td>ทำงานกับสมาชิกทีละตัว</td></tr>
+<tr><td><code>toList()</code></td><td>แปลง Iterable เป็น List</td></tr>
+</table>
+<pre><code>var scores = [<span class="n">45</span>, <span class="n">60</span>, <span class="n">82</span>, <span class="n">30</span>];
+var pass = scores.where((s) =&gt; s &gt;= <span class="n">60</span>).toList();   <span class="c">// [60, 82]</span>
+var text = scores.map((s) =&gt; <span class="s">'คะแนน $s'</span>).toList();
+print(scores.any((s) =&gt; s &gt; <span class="n">80</span>));    <span class="c">// true</span>
+print(scores.every((s) =&gt; s &gt; <span class="n">50</span>));  <span class="c">// false</span></code></pre>
+<div class="tip"><code>where()</code> คืน <b>Iterable</b> ไม่ใช่ List ถ้าต้องการ List ต้องต่อ <code>.toList()</code></div>
+
+<h2 id="func">7. Function, Arrow, Callback</h2>
+<pre><code><span class="k">void</span> hello() =&gt; print(<span class="s">'Hi'</span>);                       <span class="c">// void ไม่คืนค่า</span>
+<span class="k">void</span> greet(<span class="k">String</span> name) =&gt; print(<span class="s">'Hi $name'</span>);   <span class="c">// มี parameter</span>
+<span class="k">int</span> add(<span class="k">int</span> a, <span class="k">int</span> b) =&gt; a + b;                  <span class="c">// รับและคืนค่า (Arrow Function)</span>
+
+<span class="c">// Named parameter: ใส่ {} เรียกด้วยชื่อ</span>
+<span class="k">void</span> info({<span class="k">required String</span> name, <span class="k">int</span> age = <span class="n">18</span>}) {
+  print(<span class="s">'$name $age'</span>);
+}
+info(name: <span class="s">'Anna'</span>);        <span class="c">// age ใช้ค่า default 18</span>
+
+<span class="c">// Callback: ส่ง function ให้ที่อื่นเรียกทีหลัง</span>
+<span class="k">void</span> runTask(<span class="k">void Function()</span> task) =&gt; task();
+runTask(() =&gt; print(<span class="s">'ทำงานแล้ว'</span>));</code></pre>
+<table>
+<tr><th>แบบ</th><th>ความหมาย</th></tr>
+<tr><td>Named parameter <code>{ }</code></td><td>เรียกด้วยชื่อ เป็น optional โดยปกติ</td></tr>
+<tr><td>Default value</td><td>กำหนดค่าให้ parameter ที่ไม่ได้ส่งมา</td></tr>
+<tr><td><code>required</code></td><td>บังคับให้ named parameter ต้องส่งมาทุกครั้ง</td></tr>
+<tr><td>Callback</td><td>function ที่ส่งไปให้ส่วนอื่นเรียกทีหลัง (เช่น <code>onPressed</code>, <code>onTap</code> ใน Flutter)</td></tr>
+</table>
+<div class="card">ชื่อ function ใช้ <b>lowerCamelCase</b> (เช่น <code>calculateTotal</code>) และ Dart <b>ไม่รองรับ Function Overloading</b> (ชื่อเดียวกัน parameter ต่างกันใน scope เดียวกัน)</div>
+
+<h2 id="oop">8. Class, Object, Inheritance</h2>
+<div class="fig">
+<svg viewBox="0 0 560 190" width="560" role="img" aria-label="Class เป็นแม่แบบ Object">
+<g font-size="13" fill="currentColor">
+<rect x="20" y="20" width="190" height="150" rx="10" fill="none" stroke="#5aaeff" stroke-width="2"/>
+<text x="115" y="45" text-anchor="middle" font-weight="700">Class Student</text>
+<text x="115" y="75" text-anchor="middle">property: id, name, score</text>
+<text x="115" y="100" text-anchor="middle">method: showInfo()</text>
+<text x="115" y="140" text-anchor="middle">(แม่แบบ / Blueprint)</text>
+<path d="M215 95 L320 50 M215 95 L320 135" stroke="currentColor" stroke-width="2" fill="none"/>
+<rect x="325" y="25" width="200" height="50" rx="8" fill="#5aaeff"/><text x="425" y="55" text-anchor="middle" fill="#000">s1 = Student(1,'Anna',80)</text>
+<rect x="325" y="110" width="200" height="50" rx="8" fill="#5aaeff"/><text x="425" y="140" text-anchor="middle" fill="#000">s2 = Student(2,'Bob',55)</text>
+</g></svg>
+<figcaption>Class เป็นแม่แบบ ส่วน Object (instance) คือของจริงที่สร้างจากแม่แบบ</figcaption>
+</div>
+<pre><code><span class="k">class</span> Student {
+  <span class="k">int</span> id;
+  <span class="k">String</span> name;
+  <span class="k">double</span> score;
+
+  Student(<span class="k">this</span>.id, <span class="k">this</span>.name, <span class="k">this</span>.score);       <span class="c">// Parameter constructor</span>
+  Student.empty() : id = <span class="n">0</span>, name = <span class="s">''</span>, score = <span class="n">0</span>;  <span class="c">// Named constructor</span>
+
+  <span class="k">void</span> showInfo() =&gt; print(<span class="s">'$id $name $score'</span>);
+}
+
+<span class="k">void</span> main() {
+  var s1 = Student(<span class="n">1</span>, <span class="s">'Anna'</span>, <span class="n">80</span>);
+  s1.showInfo();
+  var s2 = Student.empty();
+}</code></pre>
+<div class="card"><b>กฎตั้งชื่อ:</b> Class = <code>UpperCamelCase</code> (<code>StudentProfile</code>) / object, property, method = <code>lowerCamelCase</code> (<code>totalScore</code>)<br>
+<b>Constructor:</b> ชื่อเหมือน class, ไม่ระบุ return type, ทำงานอัตโนมัติตอนสร้าง object, เรียกเหมือน method ทั่วไปไม่ได้<br>
+<b>this:</b> อ้างถึง property/method ของ object ปัจจุบัน (ใช้เมื่อชื่อ parameter ซ้ำกับ property)</div>
+<h3>Inheritance และ @override</h3>
+<pre><code><span class="k">class</span> Animal {
+  <span class="k">void</span> speak() =&gt; print(<span class="s">'...'</span>);
+}
+<span class="k">class</span> Dog <span class="k">extends</span> Animal {        <span class="c">// extends: สืบทอดจาก class เดิม</span>
+  <span class="n">@override</span>                      <span class="c">// เขียนทับ method ของ parent</span>
+  <span class="k">void</span> speak() =&gt; print(<span class="s">'โฮ่ง'</span>);
+}
+<span class="c">// ใน Flutter: class MyApp extends StatelessWidget { @override Widget build(...) }</span></code></pre>
+<p><code>super</code> = อ้างถึง constructor หรือ member ของ Parent</p>
+<h3>Map → Model Object (ใช้ตอนต่อ API)</h3>
+<pre><code><span class="k">class</span> User {
+  <span class="k">final int</span> id;
+  <span class="k">final String</span> name;
+  User({<span class="k">required this</span>.id, <span class="k">required this</span>.name});
+
+  <span class="k">factory</span> User.fromJson(<span class="k">Map</span>&lt;<span class="k">String</span>, <span class="k">dynamic</span>&gt; json) {
+    <span class="k">return</span> User(id: json[<span class="s">'id'</span>], name: json[<span class="s">'name'</span>]);
+  }
+}</code></pre>
+<h3>Encapsulation, Getter/Setter, static</h3>
+<pre><code><span class="k">class</span> Account {
+  <span class="k">double</span> _balance = <span class="n">0</span>;                 <span class="c">// _ นำหน้า = private ใน library</span>
+  <span class="k">double get</span> balance =&gt; _balance;        <span class="c">// Getter: อ่านค่า</span>
+  <span class="k">set</span> balance(<span class="k">double</span> v) {              <span class="c">// Setter: ตั้งค่า + ตรวจสอบได้</span>
+    <span class="k">if</span> (v &gt;= <span class="n">0</span>) _balance = v;
+  }
+  <span class="k">static int</span> count = <span class="n">0</span>;                 <span class="c">// static: เป็นของ class ไม่ใช่ของ object</span>
+  <span class="k">static void</span> hello() =&gt; print(<span class="s">'hi'</span>);
+}
+<span class="c">// เรียก: Account.count, Account.hello()  (ไม่ต้องสร้าง object)</span></code></pre>
+<div class="tip"><b>Encapsulation</b> = รวมข้อมูลและพฤติกรรมไว้ใน Class ซ่อนรายละเอียดภายใน เปิดให้ใช้ผ่าน Method/Getter/Setter ช่วยลดผลกระทบเมื่อโครงสร้างเปลี่ยน และตรวจข้อมูลก่อนแก้ไข<br><code>_</code> เป็น private ระดับ <b>Library</b> (ไฟล์) ไม่ใช่ระดับ Class</div>
+
+<h3>Lab ตัวอย่าง: จัดการข้อมูลนักศึกษา</h3>
+<pre><code><span class="k">class</span> Student {
+  <span class="k">final int</span> id; <span class="k">final String</span> name; <span class="k">final double</span> score;
+  Student(<span class="k">this</span>.id, <span class="k">this</span>.name, <span class="k">this</span>.score);
+}
+<span class="k">double</span> average(<span class="k">List</span>&lt;Student&gt; list) =&gt;
+    list.map((s) =&gt; s.score).reduce((a, b) =&gt; a + b) / list.length;
+
+<span class="k">void</span> main() {
+  var students = [
+    Student(<span class="n">1</span>, <span class="s">'A'</span>, <span class="n">80</span>), Student(<span class="n">2</span>, <span class="s">'B'</span>, <span class="n">55</span>), Student(<span class="n">3</span>, <span class="s">'C'</span>, <span class="n">70</span>),
+    Student(<span class="n">4</span>, <span class="s">'D'</span>, <span class="n">65</span>), Student(<span class="n">5</span>, <span class="s">'E'</span>, <span class="n">40</span>),
+  ];
+  var pass  = students.where((s) =&gt; s.score &gt;= <span class="n">60</span>);       <span class="c">// กรองคะแนน ≥ 60</span>
+  var names = pass.map((s) =&gt; s.name).toList();            <span class="c">// ['A','C','D']</span>
+  print(names);
+  print(average(students));                                 <span class="c">// 62.0</span>
+}</code></pre>
+
+<h2 id="quiz">9. ฝึกทำข้อสอบ</h2>
+<h3>ปรนัย (กดดูเฉลย)</h3>
+<details><summary>1. ข้อใดคือชื่อตัวแปรที่ถูกต้องใน Dart?  ก. 2name  ข. my name  ค. _total  ง. class</summary><p><b>ตอบ ค.</b> ขึ้นต้นด้วย <code>_</code> ได้ ส่วน ก. ขึ้นต้นด้วยเลข ข. มีช่องว่าง ง. เป็น keyword</p></details>
+<details><summary>2. โค้ดใดทำงานอย่างน้อย 1 ครั้งเสมอ?  ก. while  ข. for  ค. do...while  ง. if</summary><p><b>ตอบ ค.</b> do...while ทำก่อนแล้วค่อยตรวจเงื่อนไข</p></details>
+<details><summary>3. <code>where()</code> คืนค่าชนิดใด?</summary><p><b>ตอบ</b> <code>Iterable&lt;T&gt;</code> ต้องเรียก <code>.toList()</code> ถ้าต้องการ List</p></details>
+<details><summary>4. <code>name ??= 'Guest'</code> ทำอะไร?</summary><p><b>ตอบ</b> กำหนดค่า 'Guest' ให้ name เฉพาะตอนที่ name เป็น null อยู่</p></details>
+<details><summary>5. Collection ชนิดใดห้ามมีข้อมูลซ้ำ?  ก. List  ข. Set  ค. Map(value)  ง. ถูกทั้ง ข และ key ของ Map</summary><p><b>ตอบ ง.</b> Set ห้ามสมาชิกซ้ำ และ Map ห้าม key ซ้ำ (value ซ้ำได้)</p></details>
+<details><summary>6. <code>int x = null;</code> ผิดเพราะอะไร?</summary><p><b>ตอบ</b> Null Safety ทำให้ <code>int</code> เป็น null ไม่ได้ ต้องเขียน <code>int? x = null;</code></p></details>
+<details><summary>7. ข้อใดไม่ใช่คุณสมบัติของ Constructor?  ก. ชื่อเหมือน class  ข. ไม่มี return type  ค. เรียกใช้เหมือน method ทั่วไป  ง. ทำงานตอนสร้าง object</summary><p><b>ตอบ ค.</b> Constructor ทำงานอัตโนมัติตอนสร้าง object เรียกเหมือน method ทั่วไปไม่ได้</p></details>
+<h3>อัตนัย (ตัวอย่างคำตอบ)</h3>
+<details><summary>1. Native และ Cross-platform ต่างกันอย่างไร?</summary><p>Native พัฒนาแยกตามระบบปฏิบัติการด้วยภาษา/เครื่องมือของระบบนั้น (Android: Kotlin/Java + Android Studio, iOS: Swift/Objective-C + Xcode) ต้องเขียนหลายชุดโค้ด ส่วน Cross-platform เขียนโค้ดชุดเดียวแล้วใช้ได้ทั้ง Android และ iOS (เช่น Flutter, React Native, .NET MAUI)</p></details>
+<details><summary>2. final และ const ต่างกันอย่างไร?</summary><p>ทั้งคู่เปลี่ยนค่าไม่ได้หลังกำหนด และต้องกำหนดค่าตอนประกาศ <code>final</code> ค่าถูกกำหนดตอนรันโปรแกรม (runtime) ส่วน <code>const</code> ต้องเป็นค่าที่ทราบตั้งแต่ตอน compile</p></details>
+<details><summary>3. Null Safety ป้องกันปัญหาอะไร? ยกตัวอย่างเครื่องหมายที่เกี่ยวข้อง 3 ตัว</summary><p>ป้องกัน error จากการเรียกใช้ตัวแปรที่เป็น null (null dereference) ซึ่งทำให้แอปพังตอนรัน เช่น <code>?</code> (nullable type), <code>??</code> (if-null), <code>?.</code> (null-aware access), <code>??=</code>, <code>!</code></p></details>
+<details><summary>4. List, Set และ Map ต่างกันอย่างไร?</summary><p>List เก็บข้อมูลแบบมีลำดับ มี index เริ่ม 0 ซ้ำได้ / Set เก็บข้อมูลที่ห้ามซ้ำ / Map เก็บเป็นคู่ key-value โดย key ห้ามซ้ำ</p></details>
+<details><summary>5. extends และ @override ทำหน้าที่อะไร? ยกตัวอย่างใน Flutter</summary><p><code>extends</code> สร้าง class ใหม่จาก class เดิม (สืบทอด) ส่วน <code>@override</code> บอกว่า method นี้เขียนทับ method ของ parent เช่น <code>class MyApp extends StatelessWidget</code> และ <code>@override Widget build(BuildContext context)</code></p></details>
+<details><summary>6. เขียนโค้ด: กรองคะแนนที่ ≥ 60 จาก <code>[45, 60, 82, 30]</code> แล้วพิมพ์ผล</summary><pre><code>var pass = [45, 60, 82, 30].where((s) =&gt; s &gt;= 60).toList();
+print(pass);  // [60, 82]</code></pre></details>
+</main>
+</body>
+</html>
